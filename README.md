@@ -1,4 +1,4 @@
-# Calculadora de Investimentos
+# FinLess - Calculadora de Investimentos
 
 Trabalho Prático da disciplina de Engenharia de Software
 
