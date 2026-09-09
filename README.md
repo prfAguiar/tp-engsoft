@@ -29,10 +29,16 @@ O sistema tem como objetivo auxiliar pessoas na **organização e no planejament
 ---
 ### Histórias de Usuário
 
-|                            | História 1                                                                                 | História 2                                                                                         |
-| -------------------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| <h6>Backend - (Pedro)</h6> | <h6>Como usuário, gostaria de receber sugestões dos tipos de investimentos.                | <h6>Como usuário, gostaria de projetar meus ganhos em um intervalo de tempo.                       |
-| <h6>Backend - (Cauã)</h6>  | <h6>Como usuário, gostaria de indicar um montante para sugestão.</h6>                      | <h6>Como usuário, gostaria de descobrir meu perfil de investimento.</h6>                           |
-| <h6>Frontend</h6>          | <h6>Como usuário, gostaria de navegar pelo sistema por uma interface intuitiva e amigável. | <h6>Como usuário, gostaria de acessar meus dados e resultados por meio de gráficos informativos.   |
-| <h6>Fullstack              | <h6>Como usuário, gostaria de poder me cadastrar e salvar meus dados entre sessões.        | <h6>Como usuário, gostaria de poder visualizar e/ou alterar meus dados e carteira de investimento. |
+- Como usuário, gostaria de poder me cadastrar e salvar meus dados entre sessões.
+- Como usuário, gostaria de poder visualizar e/ou alterar meus dados e carteira de investimento.
+- Como usuário, gostaria de acessar meus dados e resultados por meio de gráficos informativos.
+- Como usuário, gostaria de receber sugestões dos tipos de investimentos.
+- Como usuário, gostaria de consultar as características de um investimento para avaliar seus riscos, rentabilidade e prazo.
+- Como usuário, gostaria de projetar meus ganhos em um intervalo de tempo.
+- Como usuário, gostaria de descobrir meu perfil de investimento.
+- Como usuário, gostaria de indicar um montante para sugestão.
+
+
+
+
 
