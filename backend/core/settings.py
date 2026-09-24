@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     # Bibliotecas de terceiros
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
 
     # Apps do projeto
@@ -59,6 +60,20 @@ MIDDLEWARE = [
 
 # Configurações de CORS para permitir comunicação com o Frontend
 CORS_ALLOW_ALL_ORIGINS = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
 
 ROOT_URLCONF = 'core.urls'
 
