@@ -23,20 +23,20 @@ O sistema tem como objetivo auxiliar pessoas na **organização e no planejament
 - **Database:** PostgreSQL (Local via SQLite)
 
 #### Agentes de IA:
-- Google Antigravity, OpenAI Codex.
+- Google Antigravity.
 - *OBS:* ChatBots como Google Gemini, ChatGPT e Claude em casos de limitação dos agentes.
 
 ---
 ## 📖 Histórias de Usuário
 
-- Como usuário, gostaria de poder me cadastrar e salvar meus dados entre sessões.
-- Como usuário, gostaria de poder visualizar e/ou alterar meus dados e carteira de investimento.
-- Como usuário, gostaria de acessar meus dados e resultados por meio de gráficos informativos.
-- Como usuário, gostaria de receber sugestões dos tipos de investimentos.
-- Como usuário, gostaria de consultar as características de um investimento para avaliar seus riscos, rentabilidade e prazo.
-- Como usuário, gostaria de projetar meus ganhos em um intervalo de tempo.
-- Como usuário, gostaria de descobrir meu perfil de investimento.
-- Como usuário, gostaria de indicar um montante para sugestão.
+- [x] Como usuário, gostaria de poder me cadastrar e salvar meus dados entre sessões.
+- [x] Como usuário, gostaria de poder visualizar e/ou alterar meus dados e carteira de investimento.
+- [ ] Como usuário, gostaria de acessar meus dados e resultados por meio de gráficos informativos.
+- [ ] Como usuário, gostaria de receber sugestões dos tipos de investimentos.
+- [ ] Como usuário, gostaria de consultar as características de um investimento para avaliar seus riscos, rentabilidade e prazo.
+- [ ] Como usuário, gostaria de projetar meus ganhos em um intervalo de tempo.
+- [ ] Como usuário, gostaria de descobrir meu perfil de investimento.
+- [ ] Como usuário, gostaria de indicar um montante para sugestão.
 
 ---
 ## ⚙️ Guia de Execução e Testes Locais
@@ -90,8 +90,8 @@ npm run dev
 ### 3. Replicabilidade do Teste de Autenticação
 1. Acesse **`http://localhost:5173/`** no seu navegador.
 2. O **Router Guard** irá barrar o acesso à página principal e redirecionar você para a página segura de Login.
-3. Clique em **"Crie uma conta"**. Explore o formulário, experimente errar senhas, ou inserir contas duplicadas para testar o painel visual de tratamento de erros interligado ao banco de dados.
-4. Após concluir seu cadastro, faça Login. O token JWT autorizará sua entrada e a **Navbar Premium** no topo exibirá saudações dinâmicas resgatando o seu nome diretamente do perfil salvo.
+3. Clique em **"Crie uma conta"**. Explore o formulário, experimente errar senhas, ou inserir contas duplicadas para testar o painel visual de tratamento de erros.
+4. Após concluir seu cadastro, faça Login. O token JWT autorizará sua entrada, exibindo o Dashboard principal.
 
 
 
