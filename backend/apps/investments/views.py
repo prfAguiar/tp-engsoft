@@ -2,8 +2,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import ProjectionInputSerializer
-from .services import calculate_projection
+from .serializers import InvestmentSuggestionInputSerializer, ProjectionInputSerializer
+from .services import calculate_projection, generate_investment_suggestion
 
 
 class ProjectionSimulationView(APIView):
@@ -18,3 +18,39 @@ class ProjectionSimulationView(APIView):
 
         result = calculate_projection(**serializer.validated_data)
         return Response(result, status=status.HTTP_200_OK)
+
+
+class InvestmentSuggestionView(APIView):
+    """
+    Endpoint para sugerir divisão de investimentos e ativos com base em um montante indicado
+    e no perfil de investidor (informado diretamente ou herdado do usuário autenticado).
+    """
+
+    def post(self, request):
+        serializer = InvestmentSuggestionInputSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        amount = serializer.validated_data['amount']
+        profile = serializer.validated_data.get('investor_profile')
+
+        # Se o perfil não foi enviado no payload, tenta obter do usuário autenticado
+        if not profile and request.user and request.user.is_authenticated:
+            profile = getattr(request.user, 'investor_profile', None)
+
+        if not profile:
+            return Response(
+                {
+                    'error': (
+                        'Perfil de investidor não informado. Forneça o campo "investor_profile" '
+                        '(CONSERVATIVE, MODERATE, AGGRESSIVE) ou realize o questionário de perfil.'
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            result = generate_investment_suggestion(amount=amount, investor_profile=profile)
+            return Response(result, status=status.HTTP_200_OK)
+        except ValueError as err:
+            return Response({'error': str(err)}, status=status.HTTP_400_BAD_REQUEST)
