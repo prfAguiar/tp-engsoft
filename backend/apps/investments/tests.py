@@ -68,3 +68,73 @@ class InvestmentProjectionAPITestCase(TestCase):
         response = self.client.post(self.url, payload, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class InvestmentSuggestionTestCase(TestCase):
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        self.User = get_user_model()
+        self.client = APIClient()
+        self.url = reverse('investment-suggestion')
+
+    def test_generate_suggestion_conservative(self):
+        from .services import generate_investment_suggestion
+        result = generate_investment_suggestion(amount=10000.0, investor_profile='CONSERVATIVE')
+        self.assertEqual(result['total_amount'], 10000.0)
+        self.assertEqual(result['investor_profile'], 'CONSERVATIVE')
+
+        # Verifica soma das alocações e percentuais
+        total_allocated = sum(item['allocated_amount'] for item in result['allocations'])
+        total_pct = sum(item['percentage'] for item in result['allocations'])
+        self.assertEqual(round(total_allocated, 2), 10000.0)
+        self.assertEqual(round(total_pct, 2), 100.0)
+
+    def test_generate_suggestion_moderate(self):
+        from .services import generate_investment_suggestion
+        result = generate_investment_suggestion(amount=5000.0, investor_profile='MODERATE')
+        total_allocated = sum(item['allocated_amount'] for item in result['allocations'])
+        self.assertEqual(round(total_allocated, 2), 5000.0)
+        self.assertEqual(result['investor_profile'], 'MODERATE')
+
+    def test_generate_suggestion_aggressive(self):
+        from .services import generate_investment_suggestion
+        result = generate_investment_suggestion(amount=20000.0, investor_profile='AGGRESSIVE')
+        total_allocated = sum(item['allocated_amount'] for item in result['allocations'])
+        self.assertEqual(round(total_allocated, 2), 20000.0)
+        self.assertEqual(result['investor_profile'], 'AGGRESSIVE')
+
+    def test_endpoint_suggestion_anonymous_with_profile(self):
+        payload = {
+            "amount": 10000.0,
+            "investor_profile": "MODERATE",
+        }
+        response = self.client.post(self.url, payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['total_amount'], 10000.0)
+        self.assertEqual(response.data['investor_profile'], 'MODERATE')
+        self.assertTrue(len(response.data['allocations']) > 0)
+
+    def test_endpoint_suggestion_authenticated_inherits_profile(self):
+        user = self.User.objects.create_user(
+            username='investor_user',
+            email='investor@example.com',
+            password='secretpassword',
+            investor_profile='CONSERVATIVE',
+        )
+        self.client.force_authenticate(user=user)
+
+        payload = {"amount": 5000.0}
+        response = self.client.post(self.url, payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['investor_profile'], 'CONSERVATIVE')
+
+    def test_endpoint_missing_profile_returns_400(self):
+        payload = {"amount": 5000.0}
+        response = self.client.post(self.url, payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.data)
+
+    def test_endpoint_invalid_amount_returns_400(self):
+        payload = {"amount": 0.0, "investor_profile": "CONSERVATIVE"}
+        response = self.client.post(self.url, payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
