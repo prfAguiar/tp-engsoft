@@ -23,7 +23,7 @@ O sistema tem como objetivo auxiliar pessoas na **organização e no planejament
 - **Database:** PostgreSQL (Local via SQLite)
 
 #### Agentes de IA:
-- Google Antigravity.
+- Google Antigravity, OpenAI Codex.
 - *OBS:* ChatBots como Google Gemini, ChatGPT e Claude em casos de limitação dos agentes.
 
 ---
@@ -44,39 +44,55 @@ O sistema tem como objetivo auxiliar pessoas na **organização e no planejament
 Para que a autenticação de contas e persistência de dados funcionem, **ambos os servidores precisam estar rodando simultaneamente** em dois terminais diferentes.
 
 ### 1. Configurando o Backend (Terminal 1)
-Na raiz do projeto, configure o ambiente Python:
+O backend utiliza Python e Django. Na raiz do projeto, configure o ambiente:
+
+**1.1. Criar e Ativar o Ambiente Virtual:**
+O ambiente virtual (VENV) isola as bibliotecas do projeto do resto da sua máquina.
 ```bash
-# Crie e ative o ambiente virtual
 python3 -m venv .venv
-source .venv/bin/activate  # No Windows: .\.venv\Scripts\Activate.ps1
+source .venv/bin/activate  # No Windows (PowerShell): .\.venv\Scripts\Activate.ps1
+```
 
-# Instale as dependências
+**1.2. Instalar as Dependências:**
+Com o ambiente ativado (você verá `(.venv)` no terminal), instale as bibliotecas necessárias.
+```bash
 pip install -r backend/requirements.txt
+```
 
-# Realize a migração obrigatória do banco de dados SQLite
+**1.3. Migração Obrigatória do Banco de Dados:**
+Este comando cria o arquivo `db.sqlite3` e constrói as tabelas de Usuários. Se você pular este passo, o sistema dará erro de "Tabela não encontrada" (500).
+```bash
 cd backend
 python manage.py migrate
+```
 
-# Inicie o Servidor Django (mantenha aberto)
+**1.4. Iniciar o Servidor Django:**
+Mantenha este terminal aberto rodando em segundo plano (`http://localhost:8000/`).
+```bash
 python manage.py runserver
 ```
 
 ### 2. Configurando o Frontend (Terminal 2)
-Abra um novo terminal na raiz do projeto:
+O frontend utiliza Node.js e Vue 3. Abra um **novo terminal** na raiz do projeto:
+
+**2.1. Instalar as Bibliotecas Node:**
+Faz o download da pasta `node_modules` contendo o Vue, Vite, Pinia e o Axios.
 ```bash
-# Instale as bibliotecas Node
 cd frontend
 npm install
+```
 
-# Inicie o Servidor Vue.js
+**2.2. Iniciar o Servidor de Desenvolvimento Vue.js:**
+```bash
 npm run dev
 ```
 
 ### 3. Replicabilidade do Teste de Autenticação
 1. Acesse **`http://localhost:5173/`** no seu navegador.
 2. O **Router Guard** irá barrar o acesso à página principal e redirecionar você para a página segura de Login.
-3. Clique em **"Crie uma conta"**. Explore o formulário, experimente errar senhas, ou inserir contas duplicadas.
-4. Após concluir seu cadastro, faça Login. O token JWT autorizará sua entrada e você terá acesso ao Dashboard principal.
+3. Clique em **"Crie uma conta"**. Explore o formulário, experimente errar senhas, ou inserir contas duplicadas para testar o painel visual de tratamento de erros interligado ao banco de dados.
+4. Após concluir seu cadastro, faça Login. O token JWT autorizará sua entrada e a **Navbar Premium** no topo exibirá saudações dinâmicas resgatando o seu nome diretamente do perfil salvo.
+
 
 
 
