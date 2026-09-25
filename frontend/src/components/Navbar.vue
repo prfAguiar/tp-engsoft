@@ -1,8 +1,8 @@
 <template>
   <nav class="premium-navbar">
     <div class="nav-brand">FinLess <span>Premium</span></div>
-    <div class="nav-actions">
-      <span class="user-greeting">Olá, {{ userEmail }}</span>
+    <div class="nav-actions" v-if="authStore.isAuthenticated">
+      <span class="user-greeting">Olá, {{ userDisplayName }}</span>
       <button @click="logout" class="nav-logout">Sair</button>
     </div>
   </nav>
@@ -16,8 +16,8 @@ import { useAuthStore } from '@/store/auth'
 const authStore = useAuthStore()
 const router = useRouter()
 
-const userEmail = computed(() => {
-  return authStore.user?.email || 'Investidor'
+const userDisplayName = computed(() => {
+  return authStore.user?.first_name || authStore.user?.email || 'Investidor'
 })
 
 const logout = () => {

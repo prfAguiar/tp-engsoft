@@ -53,7 +53,17 @@ const handleLogin = async () => {
   
   try {
     const res = await api.post('users/login/', { email: email.value, password: password.value })
+    // Set token immediately so interceptor works
     authStore.setAuth(res.data.access, { email: email.value })
+    
+    // Buscar perfil completo para pegar o Nome
+    try {
+      const profile = await api.get('users/profile/')
+      authStore.setAuth(res.data.access, profile.data)
+    } catch (e) {
+      console.warn("Could not fetch full profile details")
+    }
+
     router.push('/')
   } catch (err) {
     hasError.value = true

@@ -1,7 +1,5 @@
 <template>
   <div class="dashboard-layout">
-    <Navbar />
-    
     <main class="dashboard-content">
       <div class="glass-card" style="text-align: center; margin-top: 40px;">
         <h2 class="title">Seu Portfólio</h2>
@@ -12,7 +10,6 @@
 </template>
 
 <script setup>
-import Navbar from '@/components/Navbar.vue'
 </script>
 
 <style scoped>
