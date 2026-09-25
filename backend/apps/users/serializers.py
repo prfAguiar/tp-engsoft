@@ -1,4 +1,7 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
+
+User = get_user_model()
 
 
 class InvestorProfileQuizAnswerSerializer(serializers.Serializer):
@@ -29,8 +32,6 @@ class InvestorProfileQuizInputSerializer(serializers.Serializer):
             )
         return value
 
-from django.contrib.auth import get_user_model
-User = get_user_model()
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -48,6 +49,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             last_name=validated_data.get('last_name', '')
         )
         return user
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:

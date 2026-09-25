@@ -1,8 +1,13 @@
-from rest_framework import status
+from rest_framework import generics, status
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import InvestorProfileQuizInputSerializer
+from .serializers import (
+    InvestorProfileQuizInputSerializer,
+    UserProfileSerializer,
+    UserRegistrationSerializer,
+)
 from .services import QUIZ_QUESTIONS, calculate_investor_profile
 
 
@@ -39,16 +44,12 @@ class InvestorProfileEvaluationView(APIView):
 
         return Response(result, status=status.HTTP_200_OK)
 
-from rest_framework import generics
-from rest_framework.permissions import AllowAny
-from .serializers import UserRegistrationSerializer, UserProfileSerializer
 
 class RegisterView(generics.CreateAPIView):
     queryset = UserRegistrationSerializer.Meta.model.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = UserRegistrationSerializer
 
-from rest_framework.permissions import IsAuthenticated
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
