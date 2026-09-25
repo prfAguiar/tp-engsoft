@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>FinLess</h1>
-    <p>Frontend inicializado com sucesso!</p>
+    <router-view />
   </div>
 </template>
 
