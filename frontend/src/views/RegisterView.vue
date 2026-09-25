@@ -11,14 +11,16 @@
         </div>
         <div class="input-group">
           <label>Endereço de Email</label>
-          <input type="email" v-model="email" class="premium-input" placeholder="seu@email.com" required />
+          <input type="email" v-model="email" :class="['premium-input', { 'has-error': hasError }]" placeholder="seu@email.com" required @input="clearError" />
         </div>
         <div class="input-group">
           <label>Crie uma Senha Forte</label>
-          <input type="password" v-model="password" class="premium-input" placeholder="••••••••" required />
+          <input type="password" v-model="password" :class="['premium-input', { 'has-error': hasError }]" placeholder="••••••••" required @input="clearError" />
         </div>
         
-        <button type="submit" class="premium-btn">Criar Conta Exclusiva</button>
+        <button type="submit" class="premium-btn" :disabled="isLoading">
+          {{ isLoading ? 'Forjando Credenciais...' : 'Criar Conta Exclusiva' }}
+        </button>
         <p v-if="errorMsg" class="error-msg">{{ errorMsg }}</p>
       </form>
       
@@ -38,19 +40,39 @@ const firstName = ref('')
 const email = ref('')
 const password = ref('')
 const errorMsg = ref('')
+const hasError = ref(false)
+const isLoading = ref(false)
 const router = useRouter()
 
+const clearError = () => {
+  hasError.value = false
+  errorMsg.value = ''
+}
+
 const handleRegister = async () => {
+  if (isLoading.value) return
+  isLoading.value = true
+  clearError()
+
   try {
     await api.post('users/register/', { 
       email: email.value, 
       password: password.value, 
       first_name: firstName.value 
     })
-    // Redireciona para o login após sucesso
     router.push('/login')
   } catch (err) {
-    errorMsg.value = 'Falha ao criar conta. Tente outro email.'
+    hasError.value = true
+    if (err.response && err.response.data) {
+      const data = err.response.data
+      if (data.email) errorMsg.value = data.email[0]
+      else if (data.password) errorMsg.value = data.password[0]
+      else errorMsg.value = 'Dados inválidos. Verifique as informações.'
+    } else {
+      errorMsg.value = 'Falha ao conectar com o banco.'
+    }
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
