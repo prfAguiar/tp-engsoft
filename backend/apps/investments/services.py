@@ -64,3 +64,48 @@ def calculate_projection(
         'annual_rate_percent': annual_rate,
         'evolution': evolution,
     }
+
+
+def generate_investment_suggestion(amount: float, investor_profile: str) -> dict:
+    """
+    Gera uma sugestão de alocação de investimentos baseada no montante
+    e no perfil de investidor (CONSERVATIVE, MODERATE, AGGRESSIVE).
+    """
+    from .strategies import ALLOCATION_PROFILES
+
+    profile_info = ALLOCATION_PROFILES.get(investor_profile)
+    if not profile_info:
+        raise ValueError(f"Perfil de investidor '{investor_profile}' não reconhecido.")
+
+    total_amount = Decimal(str(amount))
+    suggested_allocations = []
+    accumulated_amount = Decimal('0.00')
+
+    allocations = profile_info['allocations']
+    for idx, item in enumerate(allocations):
+        percentage = Decimal(str(item['percentage']))
+        # Para o último item, ajusta qualquer resíduo de centavos
+        if idx == len(allocations) - 1:
+            allocated_val = (total_amount - accumulated_amount).quantize(
+                Decimal('0.01'), rounding=ROUND_HALF_UP
+            )
+        else:
+            allocated_val = (total_amount * (percentage / Decimal('100'))).quantize(
+                Decimal('0.01'), rounding=ROUND_HALF_UP
+            )
+            accumulated_amount += allocated_val
+
+        suggested_allocations.append({
+            'category': item['category'],
+            'percentage': float(percentage),
+            'allocated_amount': float(allocated_val),
+            'suggested_assets': item['suggested_assets'],
+            'description': item['description'],
+        })
+
+    return {
+        'total_amount': float(total_amount.quantize(Decimal('0.01'))),
+        'investor_profile': profile_info['profile_name'],
+        'profile_label': profile_info['profile_label'],
+        'allocations': suggested_allocations,
+    }
