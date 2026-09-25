@@ -25,7 +25,7 @@ class InvestmentProjectionServiceTestCase(TestCase):
         self.assertGreater(result['total_interest_earned'], 0.0)
 
     def test_calculate_projection_zero_contribution(self):
-        """Testa se a projeção funciona apenas com montante inicial e juros."""
+        """Testa se a projeção funciona apenas com montante inicial e juros compostos."""
         result = calculate_projection(
             initial_amount=1000.0,
             monthly_contribution=0.0,
@@ -33,9 +33,22 @@ class InvestmentProjectionServiceTestCase(TestCase):
             period_months=12,
         )
 
-        # Com 10% ao ano, em 12 meses R$ 1000 vira exatamente R$ 1100
+        # Com taxa anual de 10%, a taxa mensal equivalente é (1.10)^(1/12) - 1.
+        # Após 12 meses: 1000 * ((1.10^(1/12))^12) = 1000 * 1.10 = R$ 1100.00 exato.
         self.assertEqual(round(result['final_balance'], 2), 1100.0)
         self.assertEqual(round(result['total_interest_earned'], 2), 100.0)
+
+        # Garante que é JUROS COMPOSTOS e não simples:
+        # Em 24 meses com juros simples seria R$ 1200 (2 × 10% × 1000).
+        # Com juros compostos deve ser R$ 1210 (1000 × 1.10²), logo > 1200.
+        result_24m = calculate_projection(
+            initial_amount=1000.0,
+            monthly_contribution=0.0,
+            annual_rate=10.0,
+            period_months=24,
+        )
+        self.assertGreater(result_24m['final_balance'], 1200.0)
+        self.assertEqual(round(result_24m['final_balance'], 2), 1210.0)
 
 
 class InvestmentProjectionAPITestCase(TestCase):
