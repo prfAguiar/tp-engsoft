@@ -1,4 +1,4 @@
-# 🚀 FinLess - Calculadora de Investimentos Premium
+﻿# 🚀 FinLess - Calculadora de Investimentos Premium
 
 > Trabalho Prático da disciplina de Engenharia de Software  
 > **Professor:** Marco Tulio Valente
@@ -31,7 +31,7 @@ O sistema tem como objetivo auxiliar pessoas na **organização e no planejament
 
 - [x] Como usuário, gostaria de poder me cadastrar e salvar meus dados entre sessões.
 - [x] Como usuário, gostaria de poder visualizar e/ou alterar meus dados e carteira de investimento.
-- [ ] Como usuário, gostaria de acessar meus dados e resultados por meio de gráficos informativos.
+- [x] Como usuário, gostaria de acessar meus dados e resultados por meio de gráficos informativos.
 - [ ] Como usuário, gostaria de receber sugestões dos tipos de investimentos.
 - [ ] Como usuário, gostaria de consultar as características de um investimento para avaliar seus riscos, rentabilidade e prazo.
 - [ ] Como usuário, gostaria de projetar meus ganhos em um intervalo de tempo.
