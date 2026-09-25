@@ -2,7 +2,7 @@
   <div class="auth-wrapper">
     <div class="glass-card auth-card">
       <h2 class="title">Entrar na sua Carteira</h2>
-      <p class="subtitle">Bem-vindo de volta à FinLess Premium</p>
+      <p class="subtitle">Bem-vindo de volta</p>
       
       <form @submit.prevent="handleLogin" class="form-layout">
         <div class="input-group">
@@ -15,13 +15,13 @@
         </div>
         
         <button type="submit" class="premium-btn" :disabled="isLoading">
-          {{ isLoading ? 'Acessando Cofre...' : 'Acessar Painel' }}
+          {{ isLoading ? 'Entrando...' : 'Acessar Painel' }}
         </button>
         <p v-if="errorMsg" class="error-msg">{{ errorMsg }}</p>
       </form>
       
       <div class="auth-footer">
-        Ainda não tem convite? <router-link to="/register" class="gold-link">Crie sua conta</router-link>
+        Não possui conta? <router-link to="/register" class="gold-link">Crie uma conta</router-link>
       </div>
     </div>
   </div>
