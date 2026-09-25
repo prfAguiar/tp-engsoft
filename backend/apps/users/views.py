@@ -38,3 +38,12 @@ class InvestorProfileEvaluationView(APIView):
             result['saved'] = False
 
         return Response(result, status=status.HTTP_200_OK)
+
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
+from .serializers import UserRegistrationSerializer
+
+class RegisterView(generics.CreateAPIView):
+    queryset = UserRegistrationSerializer.Meta.model.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = UserRegistrationSerializer
