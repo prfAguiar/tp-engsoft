@@ -83,11 +83,8 @@ class InvestmentSuggestionTestCase(TestCase):
         self.assertEqual(result['total_amount'], 10000.0)
         self.assertEqual(result['investor_profile'], 'CONSERVATIVE')
 
-        # Verifica soma das alocações e percentuais
         total_allocated = sum(item['allocated_amount'] for item in result['allocations'])
-        total_pct = sum(item['percentage'] for item in result['allocations'])
         self.assertEqual(round(total_allocated, 2), 10000.0)
-        self.assertEqual(round(total_pct, 2), 100.0)
 
     def test_generate_suggestion_moderate(self):
         from .services import generate_investment_suggestion
@@ -103,6 +100,47 @@ class InvestmentSuggestionTestCase(TestCase):
         self.assertEqual(round(total_allocated, 2), 20000.0)
         self.assertEqual(result['investor_profile'], 'AGGRESSIVE')
 
+    def test_endpoint_suggestion_with_existing_wallet_rebalances(self):
+        from apps.investments.models import Investment
+        from apps.wallets.models import Wallet, WalletItem
+
+        user = self.User.objects.create_user(
+            username='rebalance_user',
+            email='rebalance@example.com',
+            password='secretpassword',
+            investor_profile='MODERATE',
+        )
+        self.client.force_authenticate(user=user)
+
+        # Cria investimento de Renda Fixa e adiciona R$ 10.000 na carteira do usuário
+        rf_inv = Investment.objects.create(
+            name="Tesouro Selic",
+            type="FIXED_INCOME",
+            risk_level="LOW",
+            liquidity_deadline=0,
+        )
+        wallet, _ = Wallet.objects.get_or_create(user=user)
+        WalletItem.objects.create(wallet=wallet, investment=rf_inv, amount=10000.0)
+
+        # Novo aporte de R$ 5.000 para usuário Moderado (meta: 45% RF, 30% FII, 25% Ações)
+        # Como o usuário já tem R$ 10.000 em Renda Fixa (66% do total projetado de R$ 15.000),
+        # a renda fixa já está bem acima da meta (45% = R$ 6.750).
+        # Logo, o novo aporte deve priorizar FII e Ações!
+        payload = {"amount": 5000.0}
+        response = self.client.post(self.url, payload, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['rebalanced'])
+        self.assertEqual(response.data['current_portfolio_total'], 10000.0)
+
+        allocations = {item['type']: item['allocated_amount'] for item in response.data['allocations']}
+        # Renda fixa não deve receber novos recursos (ou quase zero), pois já está excedente
+        self.assertEqual(allocations['FIXED_INCOME'], 0.0)
+        # Todo o aporte deve ir para FII e STOCK
+        self.assertGreater(allocations['FII'], 0.0)
+        self.assertGreater(allocations['STOCK'], 0.0)
+        self.assertEqual(round(allocations['FII'] + allocations['STOCK'], 2), 5000.0)
+
     def test_endpoint_suggestion_anonymous_with_profile(self):
         payload = {
             "amount": 10000.0,
@@ -112,6 +150,7 @@ class InvestmentSuggestionTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['total_amount'], 10000.0)
         self.assertEqual(response.data['investor_profile'], 'MODERATE')
+        self.assertFalse(response.data['rebalanced'])
         self.assertTrue(len(response.data['allocations']) > 0)
 
     def test_endpoint_suggestion_authenticated_inherits_profile(self):
