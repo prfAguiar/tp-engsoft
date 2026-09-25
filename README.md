@@ -23,7 +23,7 @@ O sistema tem como objetivo auxiliar pessoas na **organização e no planejament
 - **Database:** PostgreSQL (Local via SQLite)
 
 #### Agentes de IA:
-- Google Antigravity, OpenAI Codex.
+- Google Antigravity.
 - *OBS:* ChatBots como Google Gemini, ChatGPT e Claude em casos de limitação dos agentes.
 
 ---
@@ -75,9 +75,8 @@ npm run dev
 ### 3. Replicabilidade do Teste de Autenticação
 1. Acesse **`http://localhost:5173/`** no seu navegador.
 2. O **Router Guard** irá barrar o acesso à página principal e redirecionar você para a página segura de Login.
-3. Clique em **"Crie uma conta"**. Explore o formulário, experimente errar senhas, ou inserir contas duplicadas para testar o painel visual de tratamento de erros interligado ao banco de dados.
-4. Após concluir seu cadastro, faça Login. O token JWT autorizará sua entrada e a **Navbar Premium** no topo exibirá saudações dinâmicas resgatando o seu nome diretamente do perfil salvo.
-
+3. Clique em **"Crie uma conta"**. Explore o formulário, experimente errar senhas, ou inserir contas duplicadas.
+4. Após concluir seu cadastro, faça Login. O token JWT autorizará sua entrada e você terá acesso ao Dashboard principal.
 
 
 
