@@ -1,18 +1,27 @@
 <template>
-  <div class="login-container">
-    <h2>Login FinLess</h2>
-    <form @submit.prevent="handleLogin">
-      <div>
-        <label>Email:</label>
-        <input type="email" v-model="email" required />
+  <div class="auth-wrapper">
+    <div class="glass-card auth-card">
+      <h2 class="title">Entrar na sua Carteira</h2>
+      <p class="subtitle">Bem-vindo de volta à FinLess Premium</p>
+      
+      <form @submit.prevent="handleLogin" class="form-layout">
+        <div class="input-group">
+          <label>Endereço de Email</label>
+          <input type="email" v-model="email" class="premium-input" placeholder="seu@email.com" required />
+        </div>
+        <div class="input-group">
+          <label>Senha de Acesso</label>
+          <input type="password" v-model="password" class="premium-input" placeholder="••••••••" required />
+        </div>
+        
+        <button type="submit" class="premium-btn">Acessar Painel</button>
+        <p v-if="errorMsg" class="error-msg">{{ errorMsg }}</p>
+      </form>
+      
+      <div class="auth-footer">
+        Ainda não tem convite? <router-link to="/register" class="gold-link">Crie sua conta</router-link>
       </div>
-      <div>
-        <label>Senha:</label>
-        <input type="password" v-model="password" required />
-      </div>
-      <button type="submit">Entrar</button>
-      <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
-    </form>
+    </div>
   </div>
 </template>
 
@@ -40,5 +49,52 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.error { color: red; }
+.auth-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+}
+.title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+.subtitle {
+  color: var(--text-muted);
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+.form-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.input-group label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.auth-footer {
+  margin-top: 30px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.gold-link {
+  color: var(--gold-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+.gold-link:hover { text-decoration: underline; }
+.error-msg {
+  color: #ff4a4a;
+  font-size: 0.85rem;
+  text-align: center;
+  margin-top: -10px;
+}
 </style>
