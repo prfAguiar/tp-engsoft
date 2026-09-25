@@ -1,25 +1,29 @@
 <template>
   <div class="auth-wrapper">
     <div class="glass-card auth-card">
-      <h2 class="title">Criar Conta FinLess</h2>
-      <p class="subtitle">Junte-se à plataforma premium de investimentos</p>
+      <h2 class="title">Criar Conta</h2>
+      <p class="subtitle">Cadastre-se para acessar o painel</p>
       
       <form @submit.prevent="handleRegister" class="form-layout">
         <div class="input-group">
-          <label>Como quer ser chamado?</label>
+          <label>Nome</label>
           <input type="text" v-model="firstName" class="premium-input" placeholder="Seu nome (opcional)" />
         </div>
         <div class="input-group">
           <label>Endereço de Email</label>
-          <input type="email" v-model="email" :class="['premium-input', { 'has-error': hasError }]" placeholder="seu@email.com" required @input="clearError" />
+          <input type="email" v-model="email" :class="['premium-input', { 'has-error': hasErrorEmail }]" placeholder="seu@email.com" required @input="clearError" />
         </div>
         <div class="input-group">
-          <label>Crie uma Senha Forte</label>
-          <input type="password" v-model="password" :class="['premium-input', { 'has-error': hasError }]" placeholder="••••••••" required @input="clearError" />
+          <label>Crie uma Senha</label>
+          <input type="password" v-model="password" :class="['premium-input', { 'has-error': hasErrorPassword }]" placeholder="••••••••" required @input="clearError" />
+        </div>
+        <div class="input-group">
+          <label>Confirme a Senha</label>
+          <input type="password" v-model="passwordConfirm" :class="['premium-input', { 'has-error': hasErrorPassword }]" placeholder="••••••••" required @input="clearError" />
         </div>
         
         <button type="submit" class="premium-btn" :disabled="isLoading">
-          {{ isLoading ? 'Forjando Credenciais...' : 'Criar Conta Exclusiva' }}
+          {{ isLoading ? 'Criando conta...' : 'Criar Conta' }}
         </button>
         <p v-if="errorMsg" class="error-msg">{{ errorMsg }}</p>
       </form>
@@ -39,20 +43,30 @@ import api from '@/services/api'
 const firstName = ref('')
 const email = ref('')
 const password = ref('')
+const passwordConfirm = ref('')
 const errorMsg = ref('')
-const hasError = ref(false)
+const hasErrorEmail = ref(false)
+const hasErrorPassword = ref(false)
 const isLoading = ref(false)
 const router = useRouter()
 
 const clearError = () => {
-  hasError.value = false
+  hasErrorEmail.value = false
+  hasErrorPassword.value = false
   errorMsg.value = ''
 }
 
 const handleRegister = async () => {
   if (isLoading.value) return
-  isLoading.value = true
   clearError()
+
+  if (password.value !== passwordConfirm.value) {
+    hasErrorPassword.value = true
+    errorMsg.value = 'As senhas não coincidem.'
+    return
+  }
+
+  isLoading.value = true
 
   try {
     await api.post('users/register/', { 
@@ -62,12 +76,17 @@ const handleRegister = async () => {
     })
     router.push('/login')
   } catch (err) {
-    hasError.value = true
     if (err.response && err.response.data) {
       const data = err.response.data
-      if (data.email) errorMsg.value = data.email[0]
-      else if (data.password) errorMsg.value = data.password[0]
-      else errorMsg.value = 'Dados inválidos. Verifique as informações.'
+      if (data.email) {
+        hasErrorEmail.value = true
+        errorMsg.value = data.email[0]
+      } else if (data.password) {
+        hasErrorPassword.value = true
+        errorMsg.value = data.password[0]
+      } else {
+        errorMsg.value = 'Dados inválidos. Verifique as informações.'
+      }
     } else {
       errorMsg.value = 'Falha ao conectar com o banco.'
     }
