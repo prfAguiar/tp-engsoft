@@ -7,14 +7,16 @@
       <form @submit.prevent="handleLogin" class="form-layout">
         <div class="input-group">
           <label>Endereço de Email</label>
-          <input type="email" v-model="email" class="premium-input" placeholder="seu@email.com" required />
+          <input type="email" v-model="email" :class="['premium-input', { 'has-error': hasError }]" placeholder="seu@email.com" required @input="clearError" />
         </div>
         <div class="input-group">
           <label>Senha de Acesso</label>
-          <input type="password" v-model="password" class="premium-input" placeholder="••••••••" required />
+          <input type="password" v-model="password" :class="['premium-input', { 'has-error': hasError }]" placeholder="••••••••" required @input="clearError" />
         </div>
         
-        <button type="submit" class="premium-btn">Acessar Painel</button>
+        <button type="submit" class="premium-btn" :disabled="isLoading">
+          {{ isLoading ? 'Acessando Cofre...' : 'Acessar Painel' }}
+        </button>
         <p v-if="errorMsg" class="error-msg">{{ errorMsg }}</p>
       </form>
       
@@ -34,16 +36,34 @@ import api from '@/services/api'
 const email = ref('')
 const password = ref('')
 const errorMsg = ref('')
+const hasError = ref(false)
+const isLoading = ref(false)
 const router = useRouter()
 const authStore = useAuthStore()
 
+const clearError = () => {
+  hasError.value = false
+  errorMsg.value = ''
+}
+
 const handleLogin = async () => {
+  if (isLoading.value) return
+  isLoading.value = true
+  clearError()
+  
   try {
     const res = await api.post('users/login/', { email: email.value, password: password.value })
     authStore.setAuth(res.data.access, { email: email.value })
     router.push('/')
   } catch (err) {
-    errorMsg.value = 'Credenciais inválidas!'
+    hasError.value = true
+    if (err.response && err.response.status === 401) {
+      errorMsg.value = 'Acesso negado. Credenciais inválidas.'
+    } else {
+      errorMsg.value = 'Falha de comunicação com a matriz.'
+    }
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
