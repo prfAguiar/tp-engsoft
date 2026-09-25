@@ -114,8 +114,10 @@ class InvestmentSuggestionTestCase(TestCase):
         self.assertEqual(result['investor_profile'], 'AGGRESSIVE')
 
     def test_endpoint_suggestion_with_existing_wallet_rebalances(self):
-        from apps.investments.models import Investment
-        from apps.wallets.models import Wallet, WalletItem
+        from django.apps import apps
+        from .models import Investment
+        Wallet = apps.get_model('wallets', 'Wallet')
+        WalletItem = apps.get_model('wallets', 'WalletItem')
 
         user = self.User.objects.create_user(
             username='rebalance_user',
