@@ -1,33 +1,33 @@
-# FinLess - Calculadora de Investimentos
+# 🚀 FinLess - Calculadora de Investimentos Premium
 
-Trabalho Prático da disciplina de Engenharia de Software
+> Trabalho Prático da disciplina de Engenharia de Software  
+> **Professor:** Marco Tulio Valente
 
-Professor: Marco Tulio Valente
-### Integrantes: 
+### 👥 Integrantes 
 
- - #### Cauã Neto Santos Pires (Backend)<br>
- - #### Mateus Matsura Teles Costa (Fullstack)<br> 
- - #### Pedro Rangel Ferreira de Aguiar (Backend)<br> 
- - #### Renato Vilela de Melo Pacheco Pinto (Frontend)
+- **Cauã Neto Santos Pires** (Backend)
+- **Mateus Matsura Teles Costa** (Fullstack)
+- **Pedro Rangel Ferreira de Aguiar** (Backend)
+- **Renato Vilela de Melo Pacheco Pinto** (Frontend)
 
 ---
-### Tópico Central: <u>Calculadora de Aplicações Financeiras</u>
+## 🎯 Tópico Central: Calculadora de Aplicações Financeiras
 
-### Objetivo do Sistema: 
-#### Calculadora para organização e planejamento de investimentos financeiros
+### Objetivo do Sistema
+**Calculadora para organização e planejamento de investimentos financeiros.**
 O sistema tem como objetivo auxiliar pessoas na **organização e no planejamento de seus investimentos financeiros**.  A partir do montante disponível, dos ativos escolhidos e do perfil de investidor, a aplicação sugere uma **divisão adequada dos recursos**.  A calculadora busca facilitar a tomada de decisões, tornando o processo de **investimento mais simples e acessível**, sugerindo além da divisão do montante, a quantidade a ser investida por ativo. Cada usuário terá uma **carteira individual e protegida**, garantindo privacidade e segurança sobre suas informações financeiras.  Futuramente, o sistema poderá incluir recursos como definição de metas, controle de gastos e planejamento para alcançar um patrimônio desejado.
-### Tecnologias e Arquitetura: 
-#### Candidatos:
-- Frontend: Vue.js
-- Backend: Django
-- Database: PostgreSQL
-#### Agentes de IA:
 
+### 🛠️ Tecnologias e Arquitetura 
+- **Frontend:** Vue.js (Vite)
+- **Backend:** Django REST Framework
+- **Database:** PostgreSQL (Local via SQLite)
+
+#### Agentes de IA:
 - Google Antigravity, OpenAI Codex.
-- OBS: ChatBot como Google Gemini, ChatGPT e Claude em casos de limitação dos agentes.
+- *OBS:* ChatBots como Google Gemini, ChatGPT e Claude em casos de limitação dos agentes.
 
 ---
-### Histórias de Usuário
+## 📖 Histórias de Usuário
 
 - Como usuário, gostaria de poder me cadastrar e salvar meus dados entre sessões.
 - Como usuário, gostaria de poder visualizar e/ou alterar meus dados e carteira de investimento.
@@ -37,6 +37,46 @@ O sistema tem como objetivo auxiliar pessoas na **organização e no planejament
 - Como usuário, gostaria de projetar meus ganhos em um intervalo de tempo.
 - Como usuário, gostaria de descobrir meu perfil de investimento.
 - Como usuário, gostaria de indicar um montante para sugestão.
+
+---
+## ⚙️ Guia de Execução e Testes Locais
+
+Para que a autenticação de contas e persistência de dados funcionem, **ambos os servidores precisam estar rodando simultaneamente** em dois terminais diferentes.
+
+### 1. Configurando o Backend (Terminal 1)
+Na raiz do projeto, configure o ambiente Python:
+```bash
+# Crie e ative o ambiente virtual
+python3 -m venv .venv
+source .venv/bin/activate  # No Windows: .\.venv\Scripts\Activate.ps1
+
+# Instale as dependências
+pip install -r backend/requirements.txt
+
+# Realize a migração obrigatória do banco de dados SQLite
+cd backend
+python manage.py migrate
+
+# Inicie o Servidor Django (mantenha aberto)
+python manage.py runserver
+```
+
+### 2. Configurando o Frontend (Terminal 2)
+Abra um novo terminal na raiz do projeto:
+```bash
+# Instale as bibliotecas Node
+cd frontend
+npm install
+
+# Inicie o Servidor Vue.js
+npm run dev
+```
+
+### 3. Replicabilidade do Teste de Autenticação
+1. Acesse **`http://localhost:5173/`** no seu navegador.
+2. O **Router Guard** irá barrar o acesso à página principal e redirecionar você para a página segura de Login.
+3. Clique em **"Crie uma conta"**. Explore o formulário, experimente errar senhas, ou inserir contas duplicadas para testar o painel visual de tratamento de erros interligado ao banco de dados.
+4. Após concluir seu cadastro, faça Login. O token JWT autorizará sua entrada e a **Navbar Premium** no topo exibirá saudações dinâmicas resgatando o seu nome diretamente do perfil salvo.
 
 
 
