@@ -50,7 +50,14 @@ class InvestmentSuggestionView(APIView):
             )
 
         try:
-            result = generate_investment_suggestion(amount=amount, investor_profile=profile)
+            # Obtém a carteira do usuário se estiver autenticado
+            user_wallet = getattr(request.user, 'wallet', None) if request.user and request.user.is_authenticated else None
+
+            result = generate_investment_suggestion(
+                amount=amount,
+                investor_profile=profile,
+                wallet=user_wallet,
+            )
             return Response(result, status=status.HTTP_200_OK)
         except ValueError as err:
             return Response({'error': str(err)}, status=status.HTTP_400_BAD_REQUEST)
