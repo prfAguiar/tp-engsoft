@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     # Apps do projeto
     'apps.investments',
     'apps.users',
+    'apps.wallets',
 ]
 
 MIDDLEWARE = [
