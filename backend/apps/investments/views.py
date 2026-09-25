@@ -54,3 +54,16 @@ class InvestmentSuggestionView(APIView):
             return Response(result, status=status.HTTP_200_OK)
         except ValueError as err:
             return Response({'error': str(err)}, status=status.HTTP_400_BAD_REQUEST)
+
+class InvestmentCatalogView(APIView):
+    """
+    Endpoint para listar todos os investimentos cadastrados no sistema.
+    Se o ativo possuir um 'ticker', busca dados em tempo real (preço atual, dividend yield) usando yfinance.
+    """
+    def get(self, request):
+        from .models import Investment
+        from .serializers import InvestmentSerializer
+        
+        investments = Investment.objects.all()
+        serializer = InvestmentSerializer(investments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

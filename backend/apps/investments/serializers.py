@@ -35,3 +35,18 @@ class InvestmentSuggestionInputSerializer(serializers.Serializer):
         allow_null=True,
         help_text="Perfil de investidor desejado (caso omitido, usa o do usuário autenticado)",
     )
+
+from .models import Investment
+from .finance_api import get_live_asset_data
+
+class InvestmentSerializer(serializers.ModelSerializer):
+    live_data = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Investment
+        fields = ['id', 'name', 'ticker', 'type', 'risk_level', 'profitability', 'liquidity_deadline', 'description', 'live_data']
+
+    def get_live_data(self, obj):
+        if obj.ticker:
+            return get_live_asset_data(obj.ticker)
+        return None
