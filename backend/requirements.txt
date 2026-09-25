@@ -13,3 +13,4 @@ django-cors-headers==4.4.0
 
 # Utils
 python-dotenv==1.0.1
+yfinance==1.7.0
