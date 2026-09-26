@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="dashboard-layout">
     <main class="dashboard-content">
       <div class="header-section">
@@ -39,8 +39,13 @@
         </div>
         <div class="chart-card glass-card custom-padding">
           <h3 class="chart-title">Projeção de Crescimento (12 meses)</h3>
-          <div class="chart-container">
-            <Line :data="lineData" :options="lineOptions" v-if="loaded" />
+          <div class="chart-container" v-if="loaded && totalBalance > 0">
+            <Line :data="lineData" :options="lineOptions" />
+          </div>
+          <div class="empty-state" v-else-if="loaded && totalBalance === 0">
+            <span class="empty-icon">🌱</span>
+            <p>Você ainda não possui ativos na carteira.</p>
+            <p class="empty-sub">Realize aportes para visualizar sua projeção!</p>
           </div>
         </div>
       </div>
@@ -113,27 +118,31 @@ const fetchDashboardData = async () => {
       datasets: [{ backgroundColor: ['#d4af37', '#475569', '#e2e8f0', '#b45309'], borderWidth: 0, data: data }]
     };
 
-    const projRes = await api.post('investments/projection/', {
-      initial_amount: totalBalance.value || 1000,
-      monthly_contribution: 0,
-      annual_rate: 10.5,
-      period_months: 12
-    });
-    
-    const projData = projRes.data;
-    if (projData && projData.evolution) {
-      lineData.value = {
-        labels: projData.evolution.map(p => "Mês " + p.month),
-        datasets: [{
-          label: 'Patrimônio Projetado (R$)',
-          backgroundColor: 'rgba(212, 175, 55, 0.15)', borderColor: '#d4af37', borderWidth: 2, 
-          pointBackgroundColor: '#d4af37', pointBorderColor: '#fff',
-          fill: true, data: projData.evolution.map(p => p.total_balance)
-        }]
-      };
+    if (totalBalance.value > 0) {
+      const projRes = await api.post('investments/projection/', {
+        initial_amount: totalBalance.value,
+        monthly_contribution: 0,
+        annual_rate: 10.5,
+        period_months: 12
+      });
       
-      const profitPercent = totalBalance.value > 0 ? (projData.total_interest_earned / totalBalance.value) * 100 : 10.5;
-      accumulatedProfitability.value = "+ " + profitPercent.toFixed(1) + "% (Proj. 12m)";
+      const projData = projRes.data;
+      if (projData && projData.evolution) {
+        lineData.value = {
+          labels: projData.evolution.map(p => "Mês " + p.month),
+          datasets: [{
+            label: 'Patrimônio Projetado (R$)',
+            backgroundColor: 'rgba(212, 175, 55, 0.15)', borderColor: '#d4af37', borderWidth: 2, 
+            pointBackgroundColor: '#d4af37', pointBorderColor: '#fff',
+            fill: true, data: projData.evolution.map(p => p.total_balance)
+          }]
+        };
+        
+        const profitPercent = (projData.total_interest_earned / totalBalance.value) * 100;
+        accumulatedProfitability.value = "+ " + profitPercent.toFixed(1) + "% (Proj. 12m)";
+      }
+    } else {
+      accumulatedProfitability.value = "N/A";
     }
     loaded.value = true;
   } catch (error) {
@@ -164,6 +173,9 @@ onMounted(() => { fetchDashboardData(); });
 .chart-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 20px; color: var(--text-main); }
 .chart-container { position: relative; height: 300px; width: 100%; }
 .pie-container { height: 280px; }
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; color: var(--text-muted); }
+.empty-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.8; }
+.empty-sub { font-size: 0.9rem; opacity: 0.7; margin-top: 8px; }
 @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
 </style>
 
