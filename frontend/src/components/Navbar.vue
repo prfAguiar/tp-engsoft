@@ -43,7 +43,9 @@ const logout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 40px;
+  padding: 0 40px;
+  height: 72px;
+  box-sizing: border-box;
   background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -60,31 +62,15 @@ const logout = () => {
 }
 .nav-links {
   display: flex;
-  gap: 30px;
+  
 }
-.nav-link {
-  color: var(--text-muted);
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 1rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: center;
-  display: inline-block;
-}
+.nav-link { color: var(--text-muted); text-decoration: none; font-weight: 500; font-size: 1rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-block; padding: 10px 15px; }
 
-.nav-link.router-link-active {
-  color: var(--gold-accent);
-  transform: scale(1.3);
-}
+.nav-link.router-link-active { color: var(--gold-accent); font-size: 1.3rem; }
 
-.nav-links:hover .nav-link.router-link-active {
-  transform: scale(1);
-}
+.nav-links:hover .nav-link.router-link-active { font-size: 1rem; }
 
-.nav-link:hover {
-  color: #ffffff !important;
-  transform: scale(1.3) !important;
-}
+.nav-link:hover { color: #ffffff !important; font-size: 1.3rem !important; }
 
 .nav-actions {
   display: flex;
