@@ -14,7 +14,7 @@
         
         <div class="result-actions">
           <button @click="retaking = true" class="premium-btn outline">Refazer Quiz</button>
-          <button @click=".push('/')" class="premium-btn">Voltar para Dashboard</button>
+          <button @click="$router.push('/')" class="premium-btn">Voltar para Dashboard</button>
         </div>
       </div>
 
