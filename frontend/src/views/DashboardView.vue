@@ -29,11 +29,55 @@
           </div>
         </div>
       </div>
+
+      <div class="charts-grid">
+        <div class="chart-card glass-card">
+          <h3 class="chart-title">Distribuição da Carteira</h3>
+          <div class="chart-container pie-container">
+            <Pie :data="pieData" :options="pieOptions" />
+          </div>
+        </div>
+        <div class="chart-card glass-card">
+          <h3 class="chart-title">Projeção de Crescimento (12 meses)</h3>
+          <div class="chart-container">
+            <Line :data="lineData" :options="lineOptions" />
+          </div>
+        </div>
+      </div>
     </main>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue';
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Filler } from 'chart.js';
+import { Pie, Line } from 'vue-chartjs';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement, Filler);
+
+const pieData = ref({
+  labels: ['Tesouro Direto', 'CDBs', 'Fundos Imobiliários', 'Ações'],
+  datasets: [{ backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b'], borderWidth: 0, data: [40, 25, 20, 15] }]
+});
+
+const pieOptions = ref({
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { position: 'bottom' } }
+});
+
+const lineData = ref({
+  labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+  datasets: [{
+    label: 'Patrimônio Projetado (R$)',
+    backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: '#3b82f6', borderWidth: 2, fill: true,
+    data: [20000, 20500, 21100, 21600, 22000, 22600, 23100, 23800, 24500, 25100, 25800, 26500]
+  }]
+});
+
+const lineOptions = ref({
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false } }
+});
 </script>
 
 <style scoped>
@@ -66,5 +110,22 @@
 .stat-info {
   display: flex;
   flex-direction: column;
+}
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 24px;
+}
+.chart-card {
+  display: flex;
+  flex-direction: column;
+}
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+.pie-container {
+  height: 280px;
 }
 </style>
