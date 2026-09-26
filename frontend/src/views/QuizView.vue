@@ -123,7 +123,7 @@ const finishQuiz = async () => {
     resultData.value = res.data;
     
     if (authStore.user) {
-      authStore.user.investor_profile = res.data.profile;
+      authStore.updateProfile(res.data.profile);
     }
   } catch (error) {
     console.error("Erro ao avaliar quiz:", error);

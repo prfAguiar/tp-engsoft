@@ -20,6 +20,12 @@ export const useAuthStore = defineStore('auth', {
       this.user = null;
       localStorage.removeItem('jwt_token');
       localStorage.removeItem('user_data');
+    },
+    updateProfile(profile) {
+      if (this.user) {
+        this.user.investor_profile = profile;
+        localStorage.setItem('user_data', JSON.stringify(this.user));
+      }
     }
   }
 });
