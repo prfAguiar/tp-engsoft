@@ -41,57 +41,68 @@ O sistema tem como objetivo auxiliar pessoas na **organização e no planejament
 ---
 ## ⚙️ Guia de Execução e Testes Locais
 
-Para que a autenticação de contas e persistência de dados funcionem, **ambos os servidores precisam estar rodando simultaneamente** em dois terminais diferentes.
+Para que o ecossistema (Frontend, Backend e Banco de Dados) funcione corretamente, siga as instruções abaixo:
 
-### 1. Configurando o Backend (Terminal 1)
-O backend utiliza Python e Django. Na raiz do projeto, configure o ambiente:
+### 1. Inicializando o Banco de Dados (Docker)
+O sistema foi projetado para rodar com **PostgreSQL**.
+Na raiz do projeto, suba o container do banco de dados em segundo plano:
+```bash
+docker compose up -d
+```
+*Legenda:* Este comando lê o arquivo `docker-compose.yml`, baixa a imagem do Postgres e inicia um servidor de banco de dados isolado na porta 5432, com persistência de dados.
 
-**1.1. Criar e Ativar o Ambiente Virtual:**
-O ambiente virtual (VENV) isola as bibliotecas do projeto do resto da sua máquina.
+### 2. Configurando o Backend (Terminal 1)
+O backend utiliza Python e Django. Na raiz do projeto:
+
+**2.1. Criar e Ativar o Ambiente Virtual:**
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate  # No Windows (PowerShell): .\.venv\Scripts\Activate.ps1
 ```
+*Legenda:* Isola as bibliotecas do projeto do resto da sua máquina.
 
-**1.2. Instalar as Dependências:**
-Com o ambiente ativado (você verá `(.venv)` no terminal), instale as bibliotecas necessárias.
-```bash
-pip install -r backend/requirements.txt
-```
-
-**1.3. Migração Obrigatória do Banco de Dados:**
-Este comando cria o arquivo `db.sqlite3` e constrói as tabelas de Usuários. Se você pular este passo, o sistema dará erro de "Tabela não encontrada" (500).
+**2.2. Instalar as Dependências:**
 ```bash
 cd backend
-python manage.py migrate
+pip install -r requirements.txt
 ```
+*Legenda:* Instala o Django, DRF, yfinance e o driver do Postgres (`psycopg`).
 
-**1.4. Iniciar o Servidor Django:**
-Mantenha este terminal aberto rodando em segundo plano (`http://localhost:8000/`).
+**2.3. Povoamento e Migração do Banco de Dados:**
+```bash
+python manage.py migrate
+python manage.py seed_investments
+```
+*Legenda:* O `migrate` cria as tabelas oficiais no Postgres. O `seed_investments` injeta ativos reais da bolsa B3 (ações, FIIs e tesouro) para que a aplicação tenha dados para calcular e sugerir.
+
+**2.4. Iniciar o Servidor Django:**
 ```bash
 python manage.py runserver
 ```
+*Legenda:* Inicia a API REST localmente em `http://localhost:8000/`.
 
-### 2. Configurando o Frontend (Terminal 2)
+### 3. Configurando o Frontend (Terminal 2)
 O frontend utiliza Node.js e Vue 3. Abra um **novo terminal** na raiz do projeto:
 
-**2.1. Instalar as Bibliotecas Node:**
-Faz o download da pasta `node_modules` contendo o Vue, Vite, Pinia e o Axios.
+**3.1. Instalar as Bibliotecas Node:**
 ```bash
 cd frontend
 npm install
 ```
+*Legenda:* Baixa dependências como Vue, Vite, Pinia (Estado) e Chart.js (Gráficos).
 
-**2.2. Iniciar o Servidor de Desenvolvimento Vue.js:**
+**3.2. Iniciar o Servidor de Desenvolvimento:**
 ```bash
 npm run dev
 ```
+*Legenda:* Inicia a interface na porta `http://localhost:5173/`.
 
-### 3. Replicabilidade do Teste de Autenticação
-1. Acesse **`http://localhost:5173/`** no seu navegador.
-2. O **Router Guard** irá barrar o acesso à página principal e redirecionar você para a página segura de Login.
-3. Clique em **"Crie uma conta"**. Explore o formulário, experimente errar senhas, ou inserir contas duplicadas para testar o painel visual de tratamento de erros.
-4. Após concluir seu cadastro, faça Login. O token JWT autorizará sua entrada, exibindo o Dashboard principal.
+### 4. Replicabilidade do Teste do Sistema
+1. Acesse **`http://localhost:5173/`**. O **Router Guard** irá barrar o acesso ao Dashboard e forçar o redirecionamento para o Login.
+2. Clique em **"Crie uma conta"**. Teste o formulário (erros de senha, emails inválidos).
+3. Após o login, o **Dashboard** buscará sua carteira. Se vazia, exibirá o Empty State amigável.
+4. Navegue até a aba de **Carteira**, adicione ativos (como ITUB4 ou Tesouro) e observe o saldo total calculando automaticamente.
+5. Volte ao Dashboard e veja a **Rentabilidade Projetada** sendo calculada de forma dinâmica através da média ponderada dos ativos que você escolheu!
 
 
 

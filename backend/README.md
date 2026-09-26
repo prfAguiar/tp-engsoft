@@ -2,26 +2,29 @@
 
 Este diretório contém a API e lógica de negócio do sistema **FinLess**.
 
-## Estrutura Sugerida
+## Estrutura Implementada
 
 ```text
 backend/
 ├── manage.py             # Script de gerenciamento do Django
-├── core/                 # Configurações centrais do Django (settings, urls, wsgi)
+├── core/                 # Configurações centrais (settings c/ Postgres, urls, wsgi)
 ├── apps/                 # Módulos e aplicações do sistema
-│   ├── users/            # Autenticação, perfis e controle de usuários
-│   ├── investments/      # Cálculos, projeções, sugestões e perfil de investidor
+│   ├── users/            # API de Autenticação (JWT) e controle de usuários
+│   ├── investments/      # Motor de Projeção, Algoritmo de Sugestão e Integração YFinance
+│   │   └── management/   # Scripts de povoamento (seed_investments)
 │   └── wallets/          # Gerenciamento da carteira individual e ativos
-├── requirements.txt      # Dependências Python (Django, psycopg2, etc.)
+├── requirements.txt      # Dependências Python (Django, psycopg[binary], yfinance)
 └── tests/                # Testes automatizados da API
 ```
 
-## Divisão de Responsabilidades (Histórias de Usuário)
+## Divisão de Responsabilidades Implementadas (Histórias de Usuário)
 
 - **Pedro & Cauã (Backend)**:
-  - Sugestões de investimentos e tipos de ativos (`apps/investments/`)
-  - Projeção de rentabilidade e cálculo de ganhos no tempo (`apps/investments/`)
-  - Algoritmo de identificação do perfil de investidor e alocação (`apps/investments/`)
+  - Desenvolvimento do Catálogo de Ativos com integração `yfinance` para cotações em tempo real (`apps/investments/`).
+  - Motor matemático de projeção de rentabilidade composto no tempo (`apps/investments/`).
+  - Algoritmo de Sugestão baseado em alocação de risco (Conservador, Moderado, Agressivo).
+  - Povoamento do banco de dados relacional (PostgreSQL) com ativos da B3.
 - **Mateus (Fullstack)**:
-  - Sistema de cadastro, autenticação e sessão de usuários (`apps/users/`)
-  - Estrutura e persistência das carteiras dos usuários (`apps/wallets/`)
+  - Sistema seguro de autenticação JWT e registro de usuários (`apps/users/`).
+  - Arquitetura de Carteiras atreladas aos perfis de risco (`apps/wallets/`).
+  - Cálculo dinâmico de rentabilidade média ponderada baseada no extrato do usuário.
