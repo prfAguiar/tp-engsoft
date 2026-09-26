@@ -20,7 +20,7 @@ O sistema tem como objetivo auxiliar pessoas na **organização e no planejament
 ### 🛠️ Tecnologias e Arquitetura 
 - **Frontend:** Vue.js (Vite)
 - **Backend:** Django REST Framework
-- **Database:** PostgreSQL (Local via SQLite)
+- **Database:** PostgreSQL
 
 #### Agentes de IA:
 - Google Antigravity.
@@ -64,20 +64,20 @@ source .venv/bin/activate  # No Windows (PowerShell): .\.venv\Scripts\Activate.p
 **2.2. Instalar as Dependências:**
 ```bash
 cd backend
-pip install -r requirements.txt
+../.venv/bin/pip install -r requirements.txt
 ```
 *Legenda:* Instala o Django, DRF, yfinance e o driver do Postgres (`psycopg`).
 
 **2.3. Povoamento e Migração do Banco de Dados:**
 ```bash
-python manage.py migrate
-python manage.py seed_investments
+../.venv/bin/python manage.py migrate
+../.venv/bin/python manage.py seed_investments
 ```
-*Legenda:* O `migrate` cria as tabelas oficiais no Postgres. O `seed_investments` injeta ativos reais da bolsa B3 (ações, FIIs e tesouro) para que a aplicação tenha dados para calcular e sugerir.
+*Legenda:* O `migrate` cria as tabelas oficiais no Postgres. O `seed_investments` injeta ativos reais da bolsa B3 (ações, FIIs e tesouro) no banco de dados.
 
 **2.4. Iniciar o Servidor Django:**
 ```bash
-python manage.py runserver
+../.venv/bin/python manage.py runserver
 ```
 *Legenda:* Inicia a API REST localmente em `http://localhost:8000/`.
 
@@ -100,11 +100,7 @@ npm run dev
 ### 4. Replicabilidade do Teste do Sistema
 1. Acesse **`http://localhost:5173/`**. O **Router Guard** irá barrar o acesso ao Dashboard e forçar o redirecionamento para o Login.
 2. Clique em **"Crie uma conta"**. Teste o formulário (erros de senha, emails inválidos).
-3. Após o login, o **Dashboard** buscará sua carteira. Se vazia, exibirá o Empty State amigável.
+3. Após o login, o **Dashboard** buscará sua carteira.
 4. Navegue até a aba de **Carteira**, adicione ativos (como ITUB4 ou Tesouro) e observe o saldo total calculando automaticamente.
 5. Volte ao Dashboard e veja a **Rentabilidade Projetada** sendo calculada de forma dinâmica através da média ponderada dos ativos que você escolheu!
-
-
-
-
 
