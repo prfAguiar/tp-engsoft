@@ -9,7 +9,7 @@ djangorestframework-simplejwt==5.3.1
 django-cors-headers==4.4.0
 
 # Database
-# psycopg2-binary==2.9.9 (Descomente se o PostgreSQL estiver configurado)
+psycopg[binary]==3.3.6
 
 # Utils
 python-dotenv==1.0.1
