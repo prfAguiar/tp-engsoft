@@ -99,7 +99,13 @@ const fetchDashboardData = async () => {
   try {
     const walletRes = await api.get('wallets/');
     const wallet = walletRes.data;
-    totalBalance.value = parseFloat(wallet.total_amount) || 0;
+    let calculatedTotal = 0;
+    if (wallet.items && wallet.items.length > 0) {
+      wallet.items.forEach(item => {
+        calculatedTotal += parseFloat(item.amount) || 0;
+      });
+    }
+    totalBalance.value = calculatedTotal;
     
     const typesMap = {};
     if (wallet.items && wallet.items.length > 0) {

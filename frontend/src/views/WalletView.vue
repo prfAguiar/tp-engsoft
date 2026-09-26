@@ -8,26 +8,11 @@
 
       <div class="wallet-grid">
         <div class="glass-card balance-card">
-          <h3>Patrimônio Total</h3>
+          <h3>Patrimônio Total alocado</h3>
           
-          <div v-if="!isEditingBalance" class="balance-display">
+          <div class="balance-display">
             <span class="balance-value">{{ formatCurrency(totalAmount) }}</span>
-            <button @click="startEdit" class="edit-icon-btn">Editar Saldo</button>
           </div>
-          
-          <div v-else class="balance-edit-mode">
-            <div class="balance-input-group">
-              <span class="currency">R$</span>
-              <input type="number" v-model="totalAmount" class="premium-input balance-input" step="0.01" min="0"/>
-            </div>
-            <div class="edit-actions">
-              <button @click="updateWallet" class="premium-btn sm-btn save-btn" :disabled="loading">{{ loading ? '...' : 'Salvar' }}</button>
-              <button @click="cancelEdit" class="premium-btn sm-btn cancel-btn">Cancelar</button>
-            </div>
-          </div>
-          
-          <p v-if="successMessage" class="success-msg">{{ successMessage }}</p>
-          <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
         </div>
 
         <div class="glass-card assets-card">
@@ -72,16 +57,11 @@ import { ref, onMounted } from 'vue';
 import api from '@/services/api';
 
 const totalAmount = ref(0.00);
-const savedAmount = ref(0.00);
-const isEditingBalance = ref(false);
 
 const walletItems = ref([]);
 const catalog = ref([]);
 const showAddForm = ref(false);
 const newAsset = ref({ investment: '', amount: '' });
-const loading = ref(false);
-const successMessage = ref('');
-const errorMessage = ref('');
 
 const formatCurrency = (val) => {
   return parseFloat(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -90,9 +70,12 @@ const formatCurrency = (val) => {
 const fetchWallet = async () => {
   try {
     const response = await api.get('wallets/');
-    totalAmount.value = response.data.total_amount;
-    savedAmount.value = response.data.total_amount;
     walletItems.value = response.data.items || [];
+    let calculatedTotal = 0;
+    walletItems.value.forEach(item => {
+      calculatedTotal += parseFloat(item.amount) || 0;
+    });
+    totalAmount.value = calculatedTotal;
   } catch (error) { console.error("Erro:", error); }
 };
 
@@ -103,27 +86,7 @@ const fetchCatalog = async () => {
   } catch (error) { console.error("Erro:", error); }
 };
 
-const startEdit = () => {
-  savedAmount.value = totalAmount.value;
-  isEditingBalance.value = true;
-};
 
-const cancelEdit = () => {
-  totalAmount.value = savedAmount.value;
-  isEditingBalance.value = false;
-  errorMessage.value = '';
-};
-
-const updateWallet = async () => {
-  loading.value = true; successMessage.value = ''; errorMessage.value = '';
-  try {
-    await api.put('wallets/', { total_amount: totalAmount.value });
-    savedAmount.value = totalAmount.value;
-    isEditingBalance.value = false;
-    successMessage.value = 'Saldo atualizado!'; setTimeout(() => successMessage.value = '', 3000);
-  } catch (error) { errorMessage.value = 'Erro ao atualizar saldo.'; } 
-  finally { loading.value = false; }
-};
 
 const addAsset = async () => {
   if (!newAsset.value.investment || !newAsset.value.amount) return;
@@ -168,18 +131,7 @@ onMounted(() => { fetchWallet(); fetchCatalog(); });
 
 .balance-display { display: flex; flex-direction: column; align-items: center; gap: 15px; }
 .balance-value { font-size: 2.5rem; font-weight: 700; color: #fff; }
-.edit-icon-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main); padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
-.edit-icon-btn:hover { background: rgba(212, 175, 55, 0.15); border-color: var(--gold-accent); color: var(--gold-accent); }
 
-.balance-edit-mode { display: flex; flex-direction: column; gap: 15px; }
-.balance-input-group { display: flex; align-items: center; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--gold-accent); border-radius: 8px; padding: 0 16px; }
-.currency { color: var(--gold-accent); font-weight: 600; font-size: 1.2rem; margin-right: 8px; }
-.balance-input { background: transparent; border: none; font-size: 1.5rem; font-weight: 600; padding: 16px 0; margin-top: 0; width: 100%; color: #fff; }
-.balance-input:focus { outline: none; }
-.edit-actions { display: flex; gap: 10px; justify-content: center; }
-
-.success-msg { color: #10b981; margin-top: 16px; font-size: 0.9rem; background: rgba(16, 185, 129, 0.1); padding: 8px; border-radius: 6px; }
-.error-msg { color: #ef4444; margin-top: 16px; font-size: 0.9rem; background: rgba(239, 68, 68, 0.1); padding: 8px; border-radius: 6px; }
 
 /* ASSETS CARD */
 .assets-card { padding: 30px !important; }
