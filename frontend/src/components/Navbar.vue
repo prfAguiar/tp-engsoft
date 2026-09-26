@@ -5,6 +5,7 @@
     <div class="nav-links" v-if="authStore.isAuthenticated">
       <router-link to="/" class="nav-link">Dashboard</router-link>
       <router-link to="/wallet" class="nav-link">Minha Carteira</router-link>
+      <router-link to="/catalog" class="nav-link">Mercado</router-link>
       <router-link to="/quiz" class="nav-link">Descobrir Perfil</router-link>
     </div>
 

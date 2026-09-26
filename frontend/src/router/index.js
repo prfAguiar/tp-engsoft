@@ -13,6 +13,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/catalog',
+      name: 'catalog',
+      component: () => import('../views/CatalogView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/quiz',
       name: 'quiz',
       component: () => import('../views/QuizView.vue'),
