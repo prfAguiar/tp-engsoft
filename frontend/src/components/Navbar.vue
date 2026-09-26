@@ -1,6 +1,12 @@
-<template>
+﻿<template>
   <nav class="premium-navbar">
     <div class="nav-brand">FinLess <span>Premium</span></div>
+    
+    <div class="nav-links" v-if="authStore.isAuthenticated">
+      <router-link to="/" class="nav-link">Dashboard</router-link>
+      <router-link to="/wallet" class="nav-link">Minha Carteira</router-link>
+    </div>
+
     <div class="nav-actions" v-if="authStore.isAuthenticated">
       <span class="user-greeting">Olá, {{ userDisplayName }}</span>
       <button @click="logout" class="nav-logout">Sair</button>
@@ -45,6 +51,19 @@ const logout = () => {
 .nav-brand span {
   color: var(--gold-accent);
   font-weight: 400;
+}
+.nav-links {
+  display: flex;
+  gap: 30px;
+}
+.nav-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+.nav-link:hover, .nav-link.router-link-active {
+  color: var(--gold-accent);
 }
 .nav-actions {
   display: flex;

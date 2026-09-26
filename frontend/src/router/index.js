@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+﻿import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
 import LoginView from '../views/LoginView.vue'
 import DashboardView from '../views/DashboardView.vue'
@@ -10,6 +10,12 @@ const router = createRouter({
       path: '/',
       name: 'dashboard',
       component: DashboardView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/wallet',
+      name: 'wallet',
+      component: () => import('../views/WalletView.vue'),
       meta: { requiresAuth: true }
     },
     {
@@ -27,7 +33,7 @@ const router = createRouter({
   ]
 })
 
-// Navigation Guard (O Segurança da Porta)
+// Navigation Guard
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   
