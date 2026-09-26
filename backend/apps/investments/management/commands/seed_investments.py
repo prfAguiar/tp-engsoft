@@ -23,12 +23,44 @@ class Command(BaseCommand):
                 'description': 'Empresa estatal de petróleo com distribuição massiva de proventos.'
             },
             {
+                'name': 'Vale S.A.',
+                'ticker': 'VALE3.SA',
+                'type': 'STOCK',
+                'risk_level': 'HIGH',
+                'liquidity_deadline': 2,
+                'description': 'Uma das maiores mineradoras do mundo, focada em minério de ferro.'
+            },
+            {
+                'name': 'WEG S.A.',
+                'ticker': 'WEGE3.SA',
+                'type': 'STOCK',
+                'risk_level': 'HIGH',
+                'liquidity_deadline': 2,
+                'description': 'Multinacional brasileira fabricante de motores elétricos e equipamentos.'
+            },
+            {
                 'name': 'Maxi Renda FII',
                 'ticker': 'MXRF11.SA',
                 'type': 'FII',
                 'risk_level': 'MEDIUM',
                 'liquidity_deadline': 2,
                 'description': 'Fundo imobiliário de papel mais popular do Brasil (base 10).'
+            },
+            {
+                'name': 'CSHG Logística',
+                'ticker': 'HGLG11.SA',
+                'type': 'FII',
+                'risk_level': 'MEDIUM',
+                'liquidity_deadline': 2,
+                'description': 'Fundo de galpões logísticos com imóveis premium.'
+            },
+            {
+                'name': 'Alianza Trust Renda',
+                'ticker': 'ALZR11.SA',
+                'type': 'FII',
+                'risk_level': 'MEDIUM',
+                'liquidity_deadline': 2,
+                'description': 'Fundo focado em contratos atípicos de longo prazo (galpões e escritórios).'
             },
             {
                 'name': 'Tesouro Selic 2029',
@@ -40,13 +72,22 @@ class Command(BaseCommand):
                 'description': 'Título público mais seguro do mercado, ideal para reserva de emergência.'
             },
             {
-                'name': 'CDB Banco Master',
+                'name': 'Tesouro IPCA+ 2035',
                 'ticker': '',
                 'type': 'FIXED_INCOME',
                 'risk_level': 'LOW',
-                'profitability': 12.00,
-                'liquidity_deadline': 365,
-                'description': 'CDB com ótima rentabilidade fixada para vencimento no médio prazo.'
+                'profitability': 6.00,
+                'liquidity_deadline': 5,
+                'description': 'Proteção contra inflação, pagando IPCA mais uma taxa fixa.'
+            },
+            {
+                'name': 'CDB Itaú Liquidez Diária',
+                'ticker': '',
+                'type': 'FIXED_INCOME',
+                'risk_level': 'LOW',
+                'profitability': 10.40,
+                'liquidity_deadline': 1,
+                'description': 'CDB seguro emitido por bancão, rendendo próximo a 100% do CDI.'
             }
         ]
 

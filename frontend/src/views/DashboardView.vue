@@ -43,9 +43,8 @@
             <Line :data="lineData" :options="lineOptions" />
           </div>
           <div class="empty-state" v-else-if="loaded && totalBalance === 0">
-            <span class="empty-icon">🌱</span>
             <p>Você ainda não possui ativos na carteira.</p>
-            <p class="empty-sub">Realize aportes para visualizar sua projeção!</p>
+            <p class="empty-sub">Realize aportes para visualizar sua projeção.</p>
           </div>
         </div>
       </div>
@@ -174,7 +173,6 @@ onMounted(() => { fetchDashboardData(); });
 .chart-container { position: relative; height: 300px; width: 100%; }
 .pie-container { height: 280px; }
 .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; color: var(--text-muted); }
-.empty-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.8; }
 .empty-sub { font-size: 0.9rem; opacity: 0.7; margin-top: 8px; }
 @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
 </style>
