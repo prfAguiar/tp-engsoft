@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Filler } from 'chart.js';
 import { Pie, Line } from 'vue-chartjs';
 import api from '@/services/api';
@@ -59,7 +59,15 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 
 const authStore = useAuthStore();
 const totalBalance = ref(0);
-const investorProfile = ref(authStore.user?.investor_profile || 'Não definido');
+const profileMap = {
+  'CONSERVATIVE': 'Conservador',
+  'MODERATE': 'Moderado',
+  'AGGRESSIVE': 'Arrojado'
+};
+const investorProfile = computed(() => {
+  const p = authStore.user?.investor_profile;
+  return profileMap[p] || p || 'Não definido';
+});
 const accumulatedProfitability = ref('...');
 const loaded = ref(false);
 
