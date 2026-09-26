@@ -1,6 +1,8 @@
-﻿<template>
+<template>
   <nav class="premium-navbar">
-    <div class="nav-brand">FinLess <span>Premium</span></div>
+    <router-link to="/" class="nav-brand">
+      <img src="@/assets/logotipo_nomeempresa.png" alt="FinLess Logo" class="brand-logo" />
+    </router-link>
     
     <div class="nav-links" v-if="authStore.isAuthenticated">
       <router-link to="/" class="nav-link">Dashboard</router-link>
@@ -43,8 +45,9 @@ const logout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 40px;
-  height: 72px;
+  padding: 10px 30px; /* Adicionado espaço vertical (respiro) */
+  min-height: 85px;
+  height: auto;
   box-sizing: border-box;
   background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(10px);
@@ -52,9 +55,14 @@ const logout = () => {
   border-bottom: 1px solid var(--border-glass);
 }
 .nav-brand {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+.brand-logo {
+  height: 100px; /* Tamanho equilibrado sem exagero */
+  width: auto;
+  object-fit: contain;
 }
 .nav-brand span {
   color: var(--gold-accent);
