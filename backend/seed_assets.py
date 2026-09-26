@@ -48,6 +48,33 @@ def seed():
         description="Empresa de capital aberto que atua no setor de energia."
     )
     
+    Investment.objects.create(
+        name="Vale S.A.",
+        ticker="VALE3.SA",
+        type="STOCK",
+        risk_level="HIGH",
+        liquidity_deadline=2,
+        description="Uma das maiores mineradoras do mundo."
+    )
+    
+    Investment.objects.create(
+        name="WEG S.A.",
+        ticker="WEGE3.SA",
+        type="STOCK",
+        risk_level="MEDIUM",
+        liquidity_deadline=2,
+        description="Gigante brasileira de motores elétricos e energia."
+    )
+
+    Investment.objects.create(
+        name="Banco do Brasil",
+        ticker="BBAS3.SA",
+        type="STOCK",
+        risk_level="MEDIUM",
+        liquidity_deadline=2,
+        description="Instituição financeira com forte histórico de dividendos."
+    )
+    
     # FIIs (Com Ticker)
     Investment.objects.create(
         name="Maxi Renda FII",
@@ -56,6 +83,43 @@ def seed():
         risk_level="MEDIUM",
         liquidity_deadline=2,
         description="Fundo Imobiliário de Papel com grande liquidez."
+    )
+
+    Investment.objects.create(
+        name="CSHG Logística",
+        ticker="HGLG11.SA",
+        type="FII",
+        risk_level="MEDIUM",
+        liquidity_deadline=2,
+        description="Fundo Imobiliário focado em galpões logísticos."
+    )
+
+    Investment.objects.create(
+        name="Kinea Renda Imobiliária",
+        ticker="KNRI11.SA",
+        type="FII",
+        risk_level="MEDIUM",
+        liquidity_deadline=2,
+        description="Fundo Imobiliário misto (galpões e lajes corporativas)."
+    )
+    
+    # Renda Fixa Adicional
+    Investment.objects.create(
+        name="Tesouro IPCA+ 2035",
+        type="FIXED_INCOME",
+        risk_level="LOW",
+        profitability=6.20,
+        liquidity_deadline=0,
+        description="Título público atrelado à inflação."
+    )
+
+    Investment.objects.create(
+        name="LCI Banco Inter",
+        type="FIXED_INCOME",
+        risk_level="LOW",
+        profitability=9.20,
+        liquidity_deadline=90,
+        description="Letra de Crédito Imobiliário isenta de Imposto de Renda."
     )
 
 if __name__ == "__main__":
