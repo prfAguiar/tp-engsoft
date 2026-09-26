@@ -35,7 +35,7 @@
             <div class="detail-row live-data" v-if="asset.live_data">
               <span class="detail-label">Preço Atual:</span>
               <span class="detail-value highlight">
-                {{ formatCurrency(asset.live_data.current_price) }}
+                {{ formatCurrency(asset.live_data.live_price) }}
               </span>
             </div>
           </div>
