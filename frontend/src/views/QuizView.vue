@@ -6,7 +6,19 @@
         <p class="subtitle">Responda a um rápido questionário para descobrirmos a melhor estratégia para você.</p>
       </div>
 
-      <div class="glass-card quiz-card" v-if="loading">
+      <div class="glass-card quiz-card result-card" v-if="alreadyCompleted && !retaking">
+        <div class="result-icon">🎯</div>
+        <h3 class="success-text">Você já possui um perfil mapeado!</h3>
+        <p class="score-text">Perfil Atual: {{ translatedProfile }}</p>
+        <p class="description-text">Você já descobriu sua estratégia ideal. Deseja refazer a avaliação ou voltar para o início?</p>
+        
+        <div class="result-actions">
+          <button @click="retaking = true" class="premium-btn outline">Refazer Quiz</button>
+          <button @click=".push('/')" class="premium-btn">Voltar para Dashboard</button>
+        </div>
+      </div>
+
+      <div class="glass-card quiz-card" v-else-if="loading">
         <h3 class="loading-text">Carregando questionário...</h3>
       </div>
 
@@ -64,6 +76,18 @@ import { useRouter } from 'vue-router';
 const authStore = useAuthStore();
 const router = useRouter();
 const questions = ref([]);
+const alreadyCompleted = ref(false);
+const retaking = ref(false);
+
+const profileMap = {
+  'CONSERVATIVE': 'Conservador',
+  'MODERATE': 'Moderado',
+  'AGGRESSIVE': 'Arrojado'
+};
+const translatedProfile = computed(() => {
+  const p = authStore.user?.investor_profile;
+  return profileMap[p] || p;
+});
 const answers = ref([]);
 const currentIndex = ref(0);
 const loading = ref(true);
@@ -107,7 +131,12 @@ const finishQuiz = async () => {
   }
 };
 
-onMounted(() => { fetchQuestions(); });
+onMounted(() => {
+  if (authStore.user?.investor_profile) {
+    alreadyCompleted.value = true;
+  }
+  fetchQuestions(); 
+});
 </script>
 
 <style scoped>
