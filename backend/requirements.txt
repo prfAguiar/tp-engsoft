@@ -14,3 +14,7 @@ psycopg[binary]==3.3.6
 # Utils
 python-dotenv==1.0.1
 yfinance==1.7.0
+
+# Deploy
+gunicorn==23.0.0
+dj-database-url==2.2.0

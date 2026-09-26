@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-p%@*xpv$=icy62+*20djonq69i9e%s9+ake2ymgz!!8y5%-^ut
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+import os
+ALLOWED_HOSTS = ['*'] # Permite acesso externo em produção
 
 
 # Application definition
@@ -102,6 +103,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 import os
+import dj_database_url
 
 DATABASES = {
     'default': {
@@ -113,6 +115,14 @@ DATABASES = {
         'PORT': os.environ.get('POSTGRES_PORT', '5432'),
     }
 }
+
+# Se existir DATABASE_URL nas variáveis de ambiente, sobrescreve tudo (ex: no Render)
+if 'DATABASE_URL' in os.environ:
+    DATABASES['default'] = dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 
 
 # Password validation
