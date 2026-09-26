@@ -21,7 +21,7 @@
         <div class="glass-card assets-card">
           <div class="assets-header">
             <h3>Meus Ativos</h3>
-            <button @click="showAddForm = !showAddForm" class="premium-btn add-btn">{{ showAddForm ? 'Cancelar' : '+ Adicionar Ativo' }}</button>
+            <button @click="showAddForm = !showAddForm" :class="['premium-btn', 'add-btn', {'cancel-btn': showAddForm}]">{{ showAddForm ? 'Cancelar' : '+ Adicionar Ativo' }}</button>
           </div>
           
           <div v-if="showAddForm" class="add-asset-form">
@@ -137,5 +137,6 @@ onMounted(() => { fetchWallet(); fetchCatalog(); });
 .action-btn.delete { background: transparent; border: 1px solid #ef4444; color: #ef4444; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
 .action-btn.delete:hover { background: #ef4444; color: #fff; }
 .empty-state { text-align: center; color: var(--text-muted); padding: 40px !important; }
-</style>
+.cancel-btn { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important; color: #fff !important; } .cancel-btn:hover { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3) !important; transform: translateY(-2px); } </style>
+
 
