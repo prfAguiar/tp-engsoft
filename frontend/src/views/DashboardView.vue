@@ -118,10 +118,20 @@ const fetchDashboardData = async () => {
     };
 
     if (totalBalance.value > 0) {
+      // Calcula a taxa média ponderada dos ativos reais na carteira
+      let weightedRate = 10.5; // fallback
+      if (wallet.items && wallet.items.length > 0) {
+        let totalWeighted = 0;
+        wallet.items.forEach(item => {
+          totalWeighted += (parseFloat(item.amount) * (item.profitability_estimate || 10.5));
+        });
+        weightedRate = totalWeighted / totalBalance.value;
+      }
+
       const projRes = await api.post('investments/projection/', {
         initial_amount: totalBalance.value,
         monthly_contribution: 0,
-        annual_rate: 10.5,
+        annual_rate: weightedRate,
         period_months: 12
       });
       
