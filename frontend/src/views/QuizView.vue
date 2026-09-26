@@ -37,8 +37,19 @@
         </div>
       </div>
       
-      <div class="glass-card quiz-card" v-else-if="finished">
-        <h3 class="success-text">Quiz Concluído! Aguarde o resultado...</h3>
+      <div class="glass-card quiz-card result-card" v-else-if="finished && resultData">
+        <div class="result-icon">🎯</div>
+        <h3 class="success-text">Perfil {{ resultData.profile_label }}</h3>
+        <p class="score-text">Pontuação: {{ resultData.total_score }} / {{ resultData.max_score }}</p>
+        <p class="description-text">{{ resultData.description }}</p>
+        
+        <div class="result-actions">
+          <button @click="$router.push('/')" class="premium-btn">Voltar para Dashboard</button>
+        </div>
+      </div>
+      
+      <div class="glass-card quiz-card" v-else-if="finished && !resultData">
+        <h3 class="loading-text">Avaliando suas respostas...</h3>
       </div>
     </main>
   </div>
@@ -47,7 +58,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import api from '@/services/api';
+import { useAuthStore } from '@/store/auth';
+import { useRouter } from 'vue-router';
 
+const authStore = useAuthStore();
+const router = useRouter();
 const questions = ref([]);
 const answers = ref([]);
 const currentIndex = ref(0);
@@ -72,10 +87,24 @@ const selectOption = (val) => { answers.value[currentIndex.value] = val; };
 const prevQuestion = () => { if (currentIndex.value > 0) currentIndex.value--; };
 const nextQuestion = () => { if (currentIndex.value < questions.value.length - 1) currentIndex.value++; };
 
-const finishQuiz = () => {
+const resultData = ref(null);
+
+const finishQuiz = async () => {
   finished.value = true;
-  // Step 3 will send this to API
-  console.log("Answers:", answers.value);
+  try {
+    const payload = {
+      answers: answers.value.map((val, idx) => ({ question_id: questions.value[idx].id, score: val }))
+    };
+    const res = await api.post('users/profile/quiz/evaluate/', payload);
+    resultData.value = res.data;
+    
+    if (authStore.user) {
+      authStore.user.investor_profile = res.data.profile;
+    }
+  } catch (error) {
+    console.error("Erro ao avaliar quiz:", error);
+    finished.value = false;
+  }
 };
 
 onMounted(() => { fetchQuestions(); });
@@ -98,4 +127,11 @@ onMounted(() => { fetchQuestions(); });
 .sm-btn { padding: 10px 24px; width: auto; font-size: 1rem; }
 .premium-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
 .success-text { color: var(--gold-accent); font-size: 1.5rem; }
+
+.result-card { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.result-icon { font-size: 4rem; margin-bottom: 20px; }
+.score-text { color: var(--text-muted); font-size: 1.2rem; margin-bottom: 20px; font-weight: 500; }
+.description-text { color: var(--text-main); font-size: 1.1rem; line-height: 1.6; max-width: 600px; margin-bottom: 40px; margin-left: auto; margin-right: auto; }
+.result-actions { display: flex; gap: 16px; justify-content: center; width: 100%; }
+
 </style>
