@@ -66,11 +66,26 @@ const logout = () => {
   color: var(--text-muted);
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.3s;
+  font-size: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+  display: inline-block;
 }
-.nav-link:hover, .nav-link.router-link-active {
+
+.nav-link.router-link-active {
   color: var(--gold-accent);
+  transform: scale(1.3);
 }
+
+.nav-links:hover .nav-link.router-link-active {
+  transform: scale(1);
+}
+
+.nav-link:hover {
+  color: #ffffff !important;
+  transform: scale(1.3) !important;
+}
+
 .nav-actions {
   display: flex;
   align-items: center;
