@@ -6,6 +6,7 @@
       <router-link to="/" class="nav-link">Dashboard</router-link>
       <router-link to="/wallet" class="nav-link">Minha Carteira</router-link>
       <router-link to="/catalog" class="nav-link">Mercado</router-link>
+      <router-link to="/suggestion" class="nav-link">Sugestões</router-link>
       <router-link to="/quiz" class="nav-link">Descobrir Perfil</router-link>
     </div>
 

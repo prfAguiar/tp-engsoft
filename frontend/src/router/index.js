@@ -13,6 +13,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/suggestion',
+      name: 'suggestion',
+      component: () => import('../views/SuggestionView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/catalog',
       name: 'catalog',
       component: () => import('../views/CatalogView.vue'),
