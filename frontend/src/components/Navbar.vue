@@ -34,6 +34,9 @@ const logout = () => {
 
 <style scoped>
 .premium-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -88,3 +91,4 @@ const logout = () => {
   color: #000;
 }
 </style>
+
