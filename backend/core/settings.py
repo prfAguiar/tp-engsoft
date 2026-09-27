@@ -10,23 +10,32 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
+import sys
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Carrega variáveis de ambiente de .env na raiz do projeto ou no backend
+load_dotenv(BASE_DIR.parent / '.env')
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-p%@*xpv$=icy62+*20djonq69i9e%s9+ake2ymgz!!8y5%-^ut'
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
+    'django-insecure-p%@*xpv$=icy62+*20djonq69i9e%s9+ake2ymgz!!8y5%-^ut'
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
-import os
-ALLOWED_HOSTS = ['*'] # Permite acesso externo em produção
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 
 # Application definition
@@ -42,6 +51,7 @@ INSTALLED_APPS = [
     # Bibliotecas de terceiros
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
 
     # Apps do projeto
@@ -102,27 +112,38 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-import os
 import dj_database_url
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB', 'finless_db'),
-        'USER': os.environ.get('POSTGRES_USER', 'finless_user'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'finless_password'),
-        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
-        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
-    }
-}
-
-# Se existir DATABASE_URL nas variáveis de ambiente, sobrescreve tudo (ex: no Render)
 if 'DATABASE_URL' in os.environ:
-    DATABASES['default'] = dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+elif (
+    os.environ.get('USE_SQLITE', 'false').lower() in ('1', 'true', 'yes')
+    or os.environ.get('DB_ENGINE', '').lower() == 'sqlite'
+    or ('test' in sys.argv and not os.environ.get('POSTGRES_HOST'))
+):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('POSTGRES_DB', 'finless_db'),
+            'USER': os.environ.get('POSTGRES_USER', 'finless_user'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'finless_password'),
+            'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+            'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        }
+    }
 
 
 # Password validation
