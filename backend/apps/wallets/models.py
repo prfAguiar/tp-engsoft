@@ -11,6 +11,13 @@ class Wallet(models.Model):
     def __str__(self):
         return f"Wallet of {self.user.email}"
 
+    def recalculate_total(self):
+        from django.db.models import Sum
+        total = self.items.aggregate(total=Sum('amount'))['total'] or 0.00
+        self.total_amount = total
+        self.save(update_fields=['total_amount', 'updated_at'])
+        return total
+
 class WalletItem(models.Model):
     wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name='items')
     investment = models.ForeignKey(Investment, on_delete=models.CASCADE)
