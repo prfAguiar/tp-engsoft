@@ -23,8 +23,14 @@ def get_live_asset_data(ticker: str) -> dict:
         return cached_data
 
     try:
-        # Instancia o ticker no yfinance
-        asset = yf.Ticker(ticker)
+        import requests
+        session = requests.Session()
+        session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+        })
+        
+        # Instancia o ticker no yfinance com a sessão customizada
+        asset = yf.Ticker(ticker, session=session)
 
         # Pega as infos resumidas
         info = asset.info
