@@ -11,7 +11,7 @@
       </div>
 
       <div class="catalog-grid" v-else-if="assets.length > 0">
-        <div class="glass-card asset-card" v-for="asset in assets" :key="asset.id">
+        <div class="glass-card asset-card" v-for="asset in assets" :key="asset.id" @click="openDetail(asset)">
           <div class="asset-header">
             <h3 class="asset-name">{{ asset.name }}</h3>
             <span class="asset-ticker" v-if="asset.ticker">{{ asset.ticker }}</span>
@@ -38,6 +38,7 @@
                 {{ formatCurrency(asset.live_data.live_price) }}
               </span>
             </div>
+            <div class="view-detail-hint">Ver detalhes completos &rarr;</div>
           </div>
         </div>
       </div>
@@ -45,6 +46,12 @@
       <div class="glass-card catalog-card" v-else>
         <h3 class="loading-text">Nenhum ativo disponível no momento.</h3>
       </div>
+
+      <InvestmentDetailModal
+        v-if="selectedAsset"
+        :asset="selectedAsset"
+        @close="selectedAsset = null"
+      />
     </main>
   </div>
 </template>
@@ -52,9 +59,15 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import api from '@/services/api';
+import InvestmentDetailModal from '@/components/InvestmentDetailModal.vue';
 
 const assets = ref([]);
 const loading = ref(true);
+const selectedAsset = ref(null);
+
+const openDetail = (asset) => {
+  selectedAsset.value = asset;
+};
 
 const fetchCatalog = async () => {
   try {
@@ -106,12 +119,14 @@ onMounted(() => {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  cursor: pointer;
 }
 
 .asset-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 25px rgba(212, 175, 55, 0.1);
+  box-shadow: 0 12px 30px rgba(212, 175, 55, 0.15);
+  border-color: rgba(212, 175, 55, 0.35);
 }
 
 .asset-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-glass); padding-bottom: 12px; }
@@ -131,4 +146,18 @@ onMounted(() => {
 .detail-value { color: var(--text-main); font-weight: 500; }
 .detail-value.highlight { color: #10b981; font-size: 1.1rem; font-weight: 600; }
 .live-data { margin-top: 8px; padding-top: 12px; border-top: 1px dashed var(--border-glass); }
+
+.view-detail-hint {
+  font-size: 0.8rem;
+  color: var(--gold-accent);
+  margin-top: 12px;
+  text-align: right;
+  opacity: 0.75;
+  transition: opacity 0.2s, transform 0.2s;
+  font-weight: 500;
+}
+.asset-card:hover .view-detail-hint {
+  opacity: 1;
+  transform: translateX(4px);
+}
 </style>
