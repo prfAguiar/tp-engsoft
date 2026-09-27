@@ -192,3 +192,29 @@ class InvestmentSuggestionTestCase(TestCase):
         payload = {"amount": 0.0, "investor_profile": "CONSERVATIVE"}
         response = self.client.post(self.url, payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class InvestmentDetailAPITestCase(TestCase):
+    def setUp(self):
+        from .models import Investment
+        self.client = APIClient()
+        self.investment = Investment.objects.create(
+            name="CDB Banco Master",
+            type="FIXED_INCOME",
+            risk_level="LOW",
+            profitability=12.5,
+            liquidity_deadline=30,
+            description="CDB pré-fixado",
+        )
+
+    def test_get_investment_detail_success(self):
+        response = self.client.get(f'/api/investments/{self.investment.pk}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['id'], self.investment.pk)
+        self.assertEqual(response.data['name'], "CDB Banco Master")
+        self.assertEqual(float(response.data['profitability']), 12.5)
+
+    def test_get_investment_detail_not_found(self):
+        response = self.client.get('/api/investments/999999/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+

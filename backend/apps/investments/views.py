@@ -74,3 +74,24 @@ class InvestmentCatalogView(APIView):
         investments = Investment.objects.all()
         serializer = InvestmentSerializer(investments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class InvestmentDetailView(APIView):
+    """
+    Endpoint para consultar as características detalhadas de um investimento específico.
+    """
+    def get(self, request, pk):
+        from .models import Investment
+        from .serializers import InvestmentSerializer
+
+        try:
+            investment = Investment.objects.get(pk=pk)
+        except Investment.DoesNotExist:
+            return Response(
+                {'error': 'Investimento não encontrado.'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = InvestmentSerializer(investment)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
