@@ -17,10 +17,15 @@ def get_live_asset_data(ticker: str) -> dict:
     if not ticker:
         return {}
 
+    import time
+
     cache_key = f'live_asset_data_{ticker}'
     cached_data = cache.get(cache_key)
     if cached_data is not None:
         return cached_data
+
+    # Atraso de 0.3s para evitar rate limit do Yahoo quando buscar muitos de uma vez
+    time.sleep(0.3)
 
     try:
         import requests
