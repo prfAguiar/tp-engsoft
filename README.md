@@ -104,3 +104,185 @@ npm run dev
 4. Navegue até a aba de **Carteira**, adicione ativos (como ITUB4 ou Tesouro) e observe o saldo total calculando automaticamente.
 5. Volte ao Dashboard e veja a **Rentabilidade Projetada** sendo calculada de forma dinâmica através da média ponderada dos ativos que você escolheu!
 
+
+---
+
+## 📐 Documentação UML do Sistema
+
+> Os diagramas abaixo fornecem uma visão técnica da arquitetura e dos fluxos do sistema, gerados com **Mermaid** e renderizáveis diretamente no GitHub.
+
+---
+
+### 1. Diagrama de Classes
+
+Representa a estrutura dos modelos de dados do backend e seus relacionamentos.
+
+```mermaid
+classDiagram
+    direction LR
+    class User {
+        +int id
+        +string username
+        +string email
+        +string password
+        +string investor_profile
+        +string first_name
+        +string last_name
+        +login()
+        +register()
+        +update_profile()
+    }
+
+    class Wallet {
+        +int id
+        +decimal total_amount
+        +datetime created_at
+        +datetime updated_at
+        +calculate_total()
+    }
+
+    class WalletItem {
+        +int id
+        +decimal amount
+        +datetime created_at
+        +datetime updated_at
+    }
+
+    class Investment {
+        +int id
+        +string name
+        +string ticker
+        +string type
+        +string risk_level
+        +decimal profitability
+        +int liquidity_deadline
+        +string description
+        +datetime created_at
+        +datetime updated_at
+        +get_live_data()
+    }
+
+    class LiveData {
+        <<external service>>
+        +float live_price
+        +float dividend_yield_percent
+        +string currency
+        +string long_name
+        +string sector
+    }
+
+    User "1" --> "1" Wallet : possui
+    Wallet "1" --> "0..*" WalletItem : contém
+    WalletItem "0..*" --> "1" Investment : referencia
+    Investment ..> LiveData : consulta via yfinance
+```
+
+---
+
+### 2. Diagrama de Sequência — Autenticação e Acesso ao Dashboard
+
+Ilustra o fluxo completo desde o login do usuário até o carregamento do dashboard com os dados da carteira.
+
+```mermaid
+sequenceDiagram
+    actor Usuario
+    participant Frontend as Frontend (Vue.js)
+    participant Guard as Router Guard
+    participant API as Backend (Django REST)
+    participant DB as Banco de Dados (PostgreSQL)
+
+    Usuario->>Frontend: Acessa a URL "/"
+    Frontend->>Guard: Verifica autenticação (requiresAuth)
+    Guard-->>Frontend: Não autenticado → redireciona /login
+
+    Usuario->>Frontend: Preenche email e senha
+    Frontend->>API: POST /api/users/login/
+    API->>DB: Busca usuário por email
+    DB-->>API: Retorna dados do usuário
+    API->>API: Valida senha e gera JWT
+    API-->>Frontend: 200 OK {access_token, refresh_token}
+    Frontend->>Frontend: Salva token no Pinia Store
+
+    Frontend->>API: GET /api/users/profile/ (com token)
+    API-->>Frontend: 200 OK {nome, email, perfil_investidor}
+
+    Frontend->>API: GET /api/wallets/ (com token)
+    API->>DB: Busca carteira do usuário
+    DB-->>API: Retorna carteira + itens
+    API-->>Frontend: 200 OK {carteira com ativos}
+
+    Frontend-->>Usuario: Exibe Dashboard com carteira e rentabilidade projetada
+```
+
+---
+
+### 3. Diagrama de Sequência — Consulta ao Catálogo de Ativos em Tempo Real
+
+Ilustra como o sistema busca cotações ao vivo do Yahoo Finance com cache para otimização.
+
+```mermaid
+sequenceDiagram
+    actor Usuario
+    participant Frontend as Frontend (Vue.js)
+    participant API as Backend (Django REST)
+    participant Cache as Cache (Django Cache)
+    participant YF as Yahoo Finance (yfinance)
+
+    Usuario->>Frontend: Navega para /catalog
+    Frontend->>API: GET /api/investments/catalog/
+    API->>Cache: Verifica cache para cada ticker
+
+    loop Para cada ativo com ticker
+        alt Cache HIT (dados frescos < 5 min)
+            Cache-->>API: Retorna dados em cache
+        else Cache MISS
+            API->>YF: Busca cotação do ticker
+            YF-->>API: Retorna {preço, DY, moeda, setor}
+            API->>Cache: Salva dados por 5 minutos
+        end
+    end
+
+    API-->>Frontend: 200 OK [{ativo + live_data}, ...]
+    Frontend-->>Usuario: Exibe catálogo com preços em tempo real
+```
+
+---
+
+### 4. Diagrama de Casos de Uso
+
+Apresenta os atores do sistema e as funcionalidades disponíveis a cada um.
+
+```mermaid
+flowchart LR
+    subgraph Atores
+        U(["👤 Usuário não autenticado"])
+        UA(["🔐 Usuário autenticado"])
+    end
+
+    subgraph Sistema Finless
+        UC1["Cadastrar-se"]
+        UC2["Fazer Login"]
+        UC3["Visualizar Dashboard"]
+        UC4["Consultar Carteira"]
+        UC5["Adicionar Ativo à Carteira"]
+        UC6["Remover Ativo da Carteira"]
+        UC7["Explorar Catálogo de Ativos"]
+        UC8["Realizar Quiz de Perfil"]
+        UC9["Receber Sugestão de Investimento"]
+        UC10["Simular Projeção de Rentabilidade"]
+        UC11["Ver Cotação em Tempo Real"]
+    end
+
+    U --> UC1
+    U --> UC2
+
+    UA --> UC3
+    UA --> UC4
+    UA --> UC5
+    UA --> UC6
+    UA --> UC7
+    UA --> UC8
+    UA --> UC9
+    UA --> UC10
+    UC7 --> UC11
+```
