@@ -20,7 +20,7 @@ O sistema tem como objetivo auxiliar pessoas na **organização e no planejament
 ### 🛠️ Tecnologias e Arquitetura 
 - **Frontend:** Vue.js (Vite)
 - **Backend:** Django REST Framework
-- **Database:** PostgreSQL
+- **Database:** SQLite
 
 #### Agentes de IA:
 - Google Antigravity.
@@ -43,67 +43,59 @@ O sistema tem como objetivo auxiliar pessoas na **organização e no planejament
 
 Para que o ecossistema (Frontend, Backend e Banco de Dados) funcione corretamente, siga as instruções abaixo:
 
-### 1. Inicializando o Banco de Dados (Docker)
-O sistema foi projetado para rodar com **PostgreSQL**.
-Na raiz do projeto, suba o container do banco de dados em segundo plano:
-```bash
-docker compose up -d
-```
-*Legenda:* Este comando lê o arquivo `docker-compose.yml`, baixa a imagem do Postgres e inicia um servidor de banco de dados isolado na porta 5432, com persistência de dados.
-
-### 2. Configurando o Backend (Terminal 1)
+### 1. Configurando o Backend (Terminal 1)
+O sistema foi projetado para rodar com **SQLite** localmente para facilitar a execução e testes.
 O backend utiliza Python e Django. Na raiz do projeto:
 
-**2.1. Criar e Ativar o Ambiente Virtual:**
+**1.1. Criar e Ativar o Ambiente Virtual:**
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate  # No Windows (PowerShell): .\.venv\Scripts\Activate.ps1
 ```
 *Legenda:* Isola as bibliotecas do projeto do resto da sua máquina.
 
-**2.2. Instalar as Dependências:**
+**1.2. Instalar as Dependências:**
 ```bash
 cd backend
 ../.venv/bin/pip install -r requirements.txt
 ```
-*Legenda:* Instala o Django, DRF, yfinance e o driver do Postgres (`psycopg`).
+*Legenda:* Instala o Django, DRF, yfinance e outras bibliotecas necessárias.
 
-**2.3. Povoamento e Migração do Banco de Dados:**
+**1.3. Migração do Banco de Dados e Povoamento:**
 ```bash
 ../.venv/bin/python manage.py migrate
 ../.venv/bin/python manage.py seed_investments
 ```
-*Legenda:* O `migrate` cria as tabelas oficiais no Postgres. O `seed_investments` injeta ativos reais da bolsa B3 (ações, FIIs e tesouro) no banco de dados.
+*Legenda:* O `migrate` cria as tabelas oficiais no arquivo `db.sqlite3`. O `seed_investments` injeta ativos reais da bolsa B3 (ações, FIIs e tesouro) no banco de dados.
 
-**2.4. Iniciar o Servidor Django:**
+**1.4. Iniciar o Servidor Django:**
 ```bash
 ../.venv/bin/python manage.py runserver
 ```
 *Legenda:* Inicia a API REST localmente em `http://localhost:8000/`.
 
-### 3. Configurando o Frontend (Terminal 2)
+### 2. Configurando o Frontend (Terminal 2)
 O frontend utiliza Node.js e Vue 3. Abra um **novo terminal** na raiz do projeto:
 
-**3.1. Instalar as Bibliotecas Node:**
+**2.1. Instalar as Bibliotecas Node:**
 ```bash
 cd frontend
 npm install
 ```
 *Legenda:* Baixa dependências como Vue, Vite, Pinia (Estado) e Chart.js (Gráficos).
 
-**3.2. Iniciar o Servidor de Desenvolvimento:**
+**2.2. Iniciar o Servidor de Desenvolvimento:**
 ```bash
 npm run dev
 ```
 *Legenda:* Inicia a interface na porta `http://localhost:5173/`.
 
-### 4. Replicabilidade do Teste do Sistema
+### 3. Replicabilidade do Teste do Sistema
 1. Acesse **`http://localhost:5173/`**. O **Router Guard** irá barrar o acesso ao Dashboard e forçar o redirecionamento para o Login.
 2. Clique em **"Crie uma conta"**. Teste o formulário (erros de senha, emails inválidos).
 3. Após o login, o **Dashboard** buscará sua carteira.
 4. Navegue até a aba de **Carteira**, adicione ativos (como ITUB4 ou Tesouro) e observe o saldo total calculando automaticamente.
 5. Volte ao Dashboard e veja a **Rentabilidade Projetada** sendo calculada de forma dinâmica através da média ponderada dos ativos que você escolheu!
-
 
 ---
 
@@ -189,7 +181,7 @@ sequenceDiagram
     participant Frontend as Frontend (Vue.js)
     participant Guard as Router Guard
     participant API as Backend (Django REST)
-    participant DB as Banco de Dados (PostgreSQL)
+    participant DB as Banco de Dados (SQLite)
 
     Usuario->>Frontend: Acessa a URL "/"
     Frontend->>Guard: Verifica autenticação (requiresAuth)
