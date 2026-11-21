@@ -12,7 +12,7 @@ class WalletItemSerializer(serializers.ModelSerializer):
         fields = ('id', 'investment', 'investment_name', 'investment_type', 'profitability_estimate', 'amount')
 
     def get_profitability_estimate(self, obj):
-        if obj.investment.profitability:
+        if obj.investment.profitability is not None:
             return float(obj.investment.profitability)
         # Fallbacks for variable income
         if obj.investment.type == 'STOCK':
@@ -27,4 +27,4 @@ class WalletSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wallet
         fields = ('id', 'total_amount', 'items', 'updated_at')
-        read_only_fields = ('id', 'items', 'updated_at')
+        read_only_fields = ('id', 'total_amount', 'items', 'updated_at')

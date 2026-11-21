@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from .models import Wallet, WalletItem
 from .serializers import WalletSerializer, WalletItemSerializer
 
-class WalletRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+class WalletRetrieveUpdateView(generics.RetrieveAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = WalletSerializer
 
