@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .services import calculate_investor_profile
+from apps.users.services import calculate_investor_profile
 
 User = get_user_model()
 
