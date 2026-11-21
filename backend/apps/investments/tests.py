@@ -402,3 +402,94 @@ class FinanceApiUnitTestCase(TestCase):
         self.assertIsNone(result['long_name'])
         self.assertIsNone(result['sector'])
 
+    @patch('apps.investments.finance_api.yf.Ticker')
+    @patch('time.sleep')
+    def test_get_live_asset_data_returns_cached_value_on_repeat_call(self, mock_sleep, mock_ticker):
+        """Segunda chamada para o mesmo ticker deve usar o cache sem chamar yfinance novamente."""
+        mock_asset = MagicMock()
+        mock_asset.info = {
+            'currentPrice': 62.10,
+            'dividendYield': 0.06,
+            'currency': 'BRL',
+            'longName': 'Vale S.A.',
+            'sector': 'Basic Materials',
+        }
+        mock_ticker.return_value = mock_asset
+
+        first = get_live_asset_data('VALE3.SA')
+        second = get_live_asset_data('VALE3.SA')
+
+        self.assertEqual(first, second)
+        self.assertEqual(mock_ticker.call_count, 1)
+        self.assertEqual(mock_sleep.call_count, 1)
+
+    @patch('apps.investments.finance_api.yf.Ticker')
+    @patch('time.sleep')
+    def test_get_live_asset_data_handles_external_exception(self, mock_sleep, mock_ticker):
+        """Falha na API externa deve retornar {} silenciosamente sem salvar no cache."""
+        mock_ticker.side_effect = RuntimeError('Yahoo Finance unavailable')
+
+        result = get_live_asset_data('INVALID.SA')
+
+        self.assertEqual(result, {})
+        self.assertIsNone(cache.get('live_asset_data_INVALID.SA'))
+
+
+class InvestmentModelAndSerializerTestCase(TestCase):
+    def test_investment_str_with_and_without_ticker(self):
+        """__str__ deve exibir o ticker quando existir ou o tipo quando não houver ticker."""
+        stock = Investment.objects.create(
+            name='Petrobras',
+            ticker='PETR4.SA',
+            type='STOCK',
+            risk_level='HIGH',
+            liquidity_deadline=2,
+        )
+        fixed_income = Investment.objects.create(
+            name='Tesouro Selic 2029',
+            ticker=None,
+            type='FIXED_INCOME',
+            risk_level='LOW',
+            profitability=10.75,
+            liquidity_deadline=0,
+        )
+
+        self.assertEqual(str(stock), 'Petrobras (PETR4.SA)')
+        self.assertEqual(str(fixed_income), 'Tesouro Selic 2029 (FIXED_INCOME)')
+
+    @patch('apps.investments.serializers.get_live_asset_data')
+    def test_serializer_fetches_live_data_only_when_ticker_present(self, mock_live_data):
+        """InvestmentSerializer deve consultar live_data apenas para ativos com ticker."""
+        mock_live_data.return_value = {
+            'live_price': 52.30,
+            'dividend_yield_percent': 1.8,
+            'currency': 'BRL',
+            'long_name': 'WEG S.A.',
+            'sector': 'Industrials',
+        }
+
+        stock = Investment.objects.create(
+            name='WEG',
+            ticker='WEGE3.SA',
+            type='STOCK',
+            risk_level='MEDIUM',
+            liquidity_deadline=2,
+            description='Ação industrial',
+        )
+        fixed_income = Investment.objects.create(
+            name='LCI Banco Inter',
+            ticker=None,
+            type='FIXED_INCOME',
+            risk_level='LOW',
+            profitability=9.8,
+            liquidity_deadline=90,
+            description='Isento de IR',
+        )
+
+        stock_data = InvestmentSerializer(stock).data
+        fixed_data = InvestmentSerializer(fixed_income).data
+
+        mock_live_data.assert_called_once_with('WEGE3.SA')
+        self.assertEqual(stock_data['live_data']['live_price'], 52.30)
+        self.assertIsNone(fixed_data['live_data'])
+
