@@ -493,3 +493,75 @@ class InvestmentModelAndSerializerTestCase(TestCase):
         self.assertEqual(stock_data['live_data']['live_price'], 52.30)
         self.assertIsNone(fixed_data['live_data'])
 
+
+class InvestmentCatalogAPITestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('investment-catalog')
+
+    def test_catalog_endpoint_empty_list(self):
+        """Quando não há investimentos cadastrados, retorna HTTP 200 e lista vazia."""
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+    @patch('apps.investments.serializers.get_live_asset_data')
+    def test_catalog_endpoint_returns_assets_with_and_without_live_data(self, mock_live_data):
+        """Retorna todos os ativos do catálogo com live_data populado para tickers e None para renda fixa."""
+        mock_live_data.return_value = {
+            'live_price': 10.50,
+            'dividend_yield_percent': 11.4,
+            'currency': 'BRL',
+            'long_name': 'Maxi Renda FII',
+            'sector': 'Real Estate',
+        }
+
+        Investment.objects.create(
+            name='Maxi Renda',
+            ticker='MXRF11.SA',
+            type='FII',
+            risk_level='MEDIUM',
+            liquidity_deadline=2,
+            description='Fundo imobiliário de papel',
+        )
+        Investment.objects.create(
+            name='Tesouro IPCA+',
+            ticker=None,
+            type='FIXED_INCOME',
+            risk_level='LOW',
+            profitability=6.5,
+            liquidity_deadline=0,
+            description='Título público indexado à inflação',
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+        by_name = {item['name']: item for item in response.data}
+        self.assertEqual(by_name['Maxi Renda']['live_data']['live_price'], 10.50)
+        self.assertIsNone(by_name['Tesouro IPCA+']['live_data'])
+        self.assertEqual(by_name['Tesouro IPCA+']['liquidity_deadline'], 0)
+        mock_live_data.assert_called_once_with('MXRF11.SA')
+
+
+class SeedInvestmentsCommandTestCase(TestCase):
+    def test_seed_investments_creates_assets_and_is_idempotent(self):
+        """Executa o comando seed_investments duas vezes e garante que não duplica ativos."""
+        from io import StringIO
+        from django.core.management import call_command
+
+        out_first = StringIO()
+        call_command('seed_investments', stdout=out_first)
+
+        self.assertEqual(Investment.objects.count(), 10)
+        self.assertIn('10 novos ativos', out_first.getvalue())
+
+        out_second = StringIO()
+        call_command('seed_investments', stdout=out_second)
+
+        self.assertEqual(Investment.objects.count(), 10)
+        self.assertIn('0 novos ativos', out_second.getvalue())
+
