@@ -50,6 +50,73 @@ class InvestmentProjectionServiceTestCase(TestCase):
         self.assertGreater(result_24m['final_balance'], 1200.0)
         self.assertEqual(round(result_24m['final_balance'], 2), 1210.0)
 
+    def test_calculate_projection_zero_annual_rate(self):
+        """Com taxa anual de 0%, o saldo final deve ser exatamente igual ao total investido."""
+        result = calculate_projection(
+            initial_amount=1000.0,
+            monthly_contribution=200.0,
+            annual_rate=0.0,
+            period_months=6,
+        )
+
+        self.assertEqual(result['total_contributions'], 1200.0)
+        self.assertEqual(result['total_invested'], 2200.0)
+        self.assertEqual(result['total_interest_earned'], 0.0)
+        self.assertEqual(result['final_balance'], 2200.0)
+
+    def test_calculate_projection_zero_initial_with_contributions(self):
+        """Testa projeção começando do zero apenas com aportes mensais."""
+        result = calculate_projection(
+            initial_amount=0.0,
+            monthly_contribution=500.0,
+            annual_rate=12.0,
+            period_months=12,
+        )
+
+        self.assertEqual(result['initial_amount'], 0.0)
+        self.assertEqual(result['total_contributions'], 6000.0)
+        self.assertEqual(result['total_invested'], 6000.0)
+        self.assertGreater(result['total_interest_earned'], 0.0)
+        self.assertGreater(result['final_balance'], 6000.0)
+
+    def test_calculate_projection_single_month_and_evolution_consistency(self):
+        """Testa período mínimo (1 mês) e consistência dos campos de evolução."""
+        result = calculate_projection(
+            initial_amount=1000.0,
+            monthly_contribution=100.0,
+            annual_rate=12.0,
+            period_months=1,
+        )
+
+        self.assertEqual(len(result['evolution']), 1)
+        entry = result['evolution'][0]
+        self.assertEqual(entry['month'], 1)
+        self.assertEqual(entry['invested_amount'], 1100.0)
+        self.assertEqual(entry['total_balance'], result['final_balance'])
+        self.assertAlmostEqual(
+            entry['invested_amount'] + entry['interest_earned'],
+            entry['total_balance'],
+            places=2,
+        )
+
+    def test_calculate_projection_evolution_is_monotonic(self):
+        """Verifica que os meses são sequenciais e saldo/aportes crescem mês a mês."""
+        result = calculate_projection(
+            initial_amount=500.0,
+            monthly_contribution=100.0,
+            annual_rate=10.0,
+            period_months=6,
+        )
+
+        months = [item['month'] for item in result['evolution']]
+        self.assertEqual(months, [1, 2, 3, 4, 5, 6])
+
+        for i in range(1, len(result['evolution'])):
+            prev = result['evolution'][i - 1]
+            curr = result['evolution'][i]
+            self.assertGreater(curr['invested_amount'], prev['invested_amount'])
+            self.assertGreater(curr['total_balance'], prev['total_balance'])
+
 
 class InvestmentProjectionAPITestCase(TestCase):
     def setUp(self):
@@ -71,6 +138,19 @@ class InvestmentProjectionAPITestCase(TestCase):
         self.assertIn('evolution', response.data)
         self.assertEqual(len(response.data['evolution']), 24)
 
+    def test_projection_endpoint_defaults(self):
+        """Quando initial_amount e monthly_contribution são omitidos, devem assumir 0.0."""
+        payload = {
+            "annual_rate": 10.0,
+            "period_months": 12,
+        }
+        response = self.client.post(self.url, payload, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['initial_amount'], 0.0)
+        self.assertEqual(response.data['total_contributions'], 0.0)
+        self.assertEqual(response.data['final_balance'], 0.0)
+
     def test_projection_endpoint_validation_error(self):
         """Testa se dados inválidos retornam HTTP 400 Bad Request."""
         payload = {
@@ -81,6 +161,22 @@ class InvestmentProjectionAPITestCase(TestCase):
         response = self.client.post(self.url, payload, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('initial_amount', response.data)
+        self.assertIn('annual_rate', response.data)
+        self.assertIn('period_months', response.data)
+
+    def test_projection_endpoint_upper_bound_and_missing_required_fields(self):
+        """Testa limites superiores (period_months > 600, monthly_contribution < 0) e campos obrigatórios."""
+        payload = {
+            "monthly_contribution": -50.0,
+            "period_months": 601,
+        }
+        response = self.client.post(self.url, payload, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('monthly_contribution', response.data)
+        self.assertIn('annual_rate', response.data)
+        self.assertIn('period_months', response.data)
 
 
 class InvestmentSuggestionTestCase(TestCase):
