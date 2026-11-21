@@ -1,8 +1,14 @@
+from unittest.mock import MagicMock, patch
+
+from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from .finance_api import get_live_asset_data
+from .models import Investment
+from .serializers import InvestmentSerializer
 from .services import calculate_projection
 
 
@@ -313,4 +319,86 @@ class InvestmentDetailAPITestCase(TestCase):
     def test_get_investment_detail_not_found(self):
         response = self.client.get('/api/investments/999999/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class FinanceApiUnitTestCase(TestCase):
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch('apps.investments.finance_api.yf.Ticker')
+    @patch('time.sleep')
+    def test_empty_or_none_ticker_returns_empty_dict(self, mock_sleep, mock_ticker):
+        """Ticker vazio ou None deve retornar {} sem acionar sleep ou yfinance."""
+        self.assertEqual(get_live_asset_data(''), {})
+        self.assertEqual(get_live_asset_data(None), {})
+        mock_sleep.assert_not_called()
+        mock_ticker.assert_not_called()
+
+    @patch('apps.investments.finance_api.yf.Ticker')
+    @patch('time.sleep')
+    def test_get_live_asset_data_success_with_current_price(self, mock_sleep, mock_ticker):
+        """Extrai currentPrice, converte dividendYield para porcentagem e armazena em cache."""
+        mock_asset = MagicMock()
+        mock_asset.info = {
+            'currentPrice': 38.45,
+            'dividendYield': 0.085,
+            'currency': 'BRL',
+            'longName': 'Petróleo Brasileiro S.A. - Petrobras',
+            'sector': 'Energy',
+        }
+        mock_ticker.return_value = mock_asset
+
+        result = get_live_asset_data('PETR4.SA')
+
+        self.assertEqual(result, {
+            'live_price': 38.45,
+            'dividend_yield_percent': 8.5,
+            'currency': 'BRL',
+            'long_name': 'Petróleo Brasileiro S.A. - Petrobras',
+            'sector': 'Energy',
+        })
+        mock_sleep.assert_called_once_with(0.3)
+        mock_ticker.assert_called_once()
+        self.assertEqual(cache.get('live_asset_data_PETR4.SA'), result)
+
+    @patch('apps.investments.finance_api.yf.Ticker')
+    @patch('time.sleep')
+    def test_get_live_asset_data_fallback_regular_market_price(self, mock_sleep, mock_ticker):
+        """Quando currentPrice não está presente, deve usar regularMarketPrice."""
+        mock_asset = MagicMock()
+        mock_asset.info = {
+            'regularMarketPrice': 10.25,
+            'dividendYield': 0.12,
+            'currency': 'BRL',
+            'longName': 'Maxi Renda FII',
+            'sector': 'Real Estate',
+        }
+        mock_ticker.return_value = mock_asset
+
+        result = get_live_asset_data('MXRF11.SA')
+
+        self.assertEqual(result['live_price'], 10.25)
+        self.assertEqual(result['dividend_yield_percent'], 12.0)
+
+    @patch('apps.investments.finance_api.yf.Ticker')
+    @patch('time.sleep')
+    def test_get_live_asset_data_fallback_previous_close_and_defaults(self, mock_sleep, mock_ticker):
+        """Usa previousClose como último fallback, mantém dividendYield None e currency padrão BRL."""
+        mock_asset = MagicMock()
+        mock_asset.info = {
+            'previousClose': 125.0,
+            'dividendYield': None,
+        }
+        mock_ticker.return_value = mock_asset
+
+        result = get_live_asset_data('BOVA11.SA')
+
+        self.assertEqual(result['live_price'], 125.0)
+        self.assertIsNone(result['dividend_yield_percent'])
+        self.assertEqual(result['currency'], 'BRL')
+        self.assertIsNone(result['long_name'])
+        self.assertIsNone(result['sector'])
 
