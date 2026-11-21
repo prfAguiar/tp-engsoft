@@ -6,10 +6,10 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from .finance_api import get_live_asset_data
-from .models import Investment
-from .serializers import InvestmentSerializer
-from .services import calculate_projection
+from apps.investments.finance_api import get_live_asset_data
+from apps.investments.models import Investment
+from apps.investments.serializers import InvestmentSerializer
+from apps.investments.services import calculate_projection
 
 
 class InvestmentProjectionServiceTestCase(TestCase):
@@ -193,7 +193,7 @@ class InvestmentSuggestionTestCase(TestCase):
         self.url = reverse('investment-suggestion')
 
     def test_generate_suggestion_conservative(self):
-        from .services import generate_investment_suggestion
+        from apps.investments.services import generate_investment_suggestion
         result = generate_investment_suggestion(amount=10000.0, investor_profile='CONSERVATIVE')
         self.assertEqual(result['total_amount'], 10000.0)
         self.assertEqual(result['investor_profile'], 'CONSERVATIVE')
@@ -202,14 +202,14 @@ class InvestmentSuggestionTestCase(TestCase):
         self.assertEqual(round(total_allocated, 2), 10000.0)
 
     def test_generate_suggestion_moderate(self):
-        from .services import generate_investment_suggestion
+        from apps.investments.services import generate_investment_suggestion
         result = generate_investment_suggestion(amount=5000.0, investor_profile='MODERATE')
         total_allocated = sum(item['allocated_amount'] for item in result['allocations'])
         self.assertEqual(round(total_allocated, 2), 5000.0)
         self.assertEqual(result['investor_profile'], 'MODERATE')
 
     def test_generate_suggestion_aggressive(self):
-        from .services import generate_investment_suggestion
+        from apps.investments.services import generate_investment_suggestion
         result = generate_investment_suggestion(amount=20000.0, investor_profile='AGGRESSIVE')
         total_allocated = sum(item['allocated_amount'] for item in result['allocations'])
         self.assertEqual(round(total_allocated, 2), 20000.0)
@@ -217,7 +217,7 @@ class InvestmentSuggestionTestCase(TestCase):
 
     def test_endpoint_suggestion_with_existing_wallet_rebalances(self):
         from django.apps import apps
-        from .models import Investment
+        from apps.investments.models import Investment
         Wallet = apps.get_model('wallets', 'Wallet')
         WalletItem = apps.get_model('wallets', 'WalletItem')
 
@@ -298,7 +298,7 @@ class InvestmentSuggestionTestCase(TestCase):
 
 class InvestmentDetailAPITestCase(TestCase):
     def setUp(self):
-        from .models import Investment
+        from apps.investments.models import Investment
         self.client = APIClient()
         self.investment = Investment.objects.create(
             name="CDB Banco Master",

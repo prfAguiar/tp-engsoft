@@ -8,7 +8,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from .models import Investment
+from apps.investments.models import Investment
 
 
 class InvestmentsIntegrationTestCase(TestCase):
