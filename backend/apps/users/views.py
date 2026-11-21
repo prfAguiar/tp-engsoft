@@ -77,6 +77,11 @@ class LogoutView(APIView):
             )
         try:
             token = RefreshToken(refresh_token)
+            if str(token.get('user_id')) != str(request.user.id):
+                return Response(
+                    {'error': 'Token não pertence ao usuário autenticado.'},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
             token.blacklist()
             return Response(
                 {'detail': 'Logout realizado com sucesso.'},
