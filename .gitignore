@@ -21,6 +21,12 @@ db.sqlite3-journal
 media/
 staticfiles/
 
+# Cobertura de Testes
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
 # Node & Frontend (Vue.js)
 node_modules/
 dist/

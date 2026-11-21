@@ -14,3 +14,6 @@ yfinance==1.7.0
 
 # Deploy
 gunicorn==23.0.0
+
+# Tests & Coverage
+coverage==7.17.4
