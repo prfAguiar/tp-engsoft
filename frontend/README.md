@@ -10,6 +10,7 @@ frontend/
 ├── e2e/                  # Suíte de testes End-to-End (Playwright)
 │   ├── helpers.js
 │   ├── auth-guard.spec.js
+│   ├── quiz-suggestion.spec.js
 │   ├── catalog-modal.spec.js
 │   └── wallet-dashboard.spec.js
 ├── src/
@@ -36,6 +37,7 @@ npm run test:e2e
 
 # Executar um fluxo específico
 npx playwright test e2e/auth-guard.spec.js
+npx playwright test e2e/quiz-suggestion.spec.js
 npx playwright test e2e/catalog-modal.spec.js
 npx playwright test e2e/wallet-dashboard.spec.js
 ```
