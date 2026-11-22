@@ -45,3 +45,5 @@ pnpm-debug.log*
 *~
 .DS_Store
 package-lock.json
+playwright-report/
+test-results/
